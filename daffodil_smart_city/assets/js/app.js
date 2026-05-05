@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const pageAlert = document.getElementById('pageAlert');
 
     let campusDevices = [];
+    let alertTimeoutId = null;
+    let hasUserRequested = false;
 
     bindEvents();
     loadCampusDevices();
@@ -29,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (viewDevicesBtn && deviceSection) {
             viewDevicesBtn.addEventListener('click', () => {
+                hasUserRequested = true;
                 deviceSection.scrollIntoView({
                     behavior: 'smooth',
                     block: 'start'
@@ -90,10 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             renderDevices([]);
 
-            showAlert(
-                'Could not load devices. Make sure electricity_api is running and you are logged in from Admin Dashboard first.',
-                'danger'
-            );
+            if (hasUserRequested) {
+                showAlert(
+                    'Could not load buildings. Make sure electricity_api is running and you are logged in from Admin Dashboard first.',
+                    'danger'
+                );
+            }
         }
     }
 
@@ -104,8 +109,8 @@ document.addEventListener('DOMContentLoaded', () => {
             deviceGrid.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">⚡</div>
-                    <h3>No device added yet</h3>
-                    <p>Click “View Devices” after adding Daffodil Smart City devices from Admin Dashboard.</p>
+                    <h3>No building added yet</h3>
+                    <p>Click “Add Buildings” after adding Daffodil Smart City buildings from Admin Dashboard.</p>
                 </div>
             `;
             return;
@@ -160,8 +165,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function showAlert(message, type = 'danger') {
         if (!pageAlert) return;
 
+        if (alertTimeoutId) {
+            clearTimeout(alertTimeoutId);
+        }
+
         pageAlert.textContent = message;
         pageAlert.className = `alert ${type}`;
+
+        alertTimeoutId = setTimeout(() => {
+            hideAlert();
+        }, 4000);
     }
 
     function hideAlert() {
