@@ -1,3 +1,5 @@
+console.log("Room manager JS loaded");
+
 const PROJECT_ROOT = window.location.pathname.split("/daffodil_smart_city")[0];
 const API_BASE_URL = `${window.location.origin}${PROJECT_ROOT}/electricity_api`;
 
@@ -21,15 +23,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const roomForm = document.getElementById("roomForm");
   const roomGrid = document.getElementById("roomGrid");
 
-  const roomNoInput = document.getElementById("roomNo");
+  const roomNameInput = document.getElementById("roomName");
   const roomVerificationIdInput = document.getElementById("roomVerificationId");
   const roomPageLinkInput = document.getElementById("roomPageLink");
 
-  const roomNoSuggestions = document.getElementById("roomNoSuggestions");
-  const roomVerificationSuggestions = document.getElementById("roomVerificationSuggestions");
-  const roomPageLinkSuggestions = document.getElementById("roomPageLinkSuggestions");
-
   const saveRoomBtn = document.getElementById("saveRoomBtn");
+
+  const roomNameSuggestions = getOrCreateSuggestionBox(roomNameInput, "roomNameSuggestions");
+  const roomVerificationSuggestions = getOrCreateSuggestionBox(roomVerificationIdInput, "roomVerificationSuggestions");
+  const roomPageLinkSuggestions = getOrCreateSuggestionBox(roomPageLinkInput, "roomPageLinkSuggestions");
 
   let alertTimeoutId = null;
 
@@ -50,35 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     yksg_3: "Yunus Khan Scholar Garden-3 (YKSG-3)"
   };
 
-  const roomOptions = [
-    { roomNo: "Room 101", slug: "room_101" },
-    { roomNo: "Room 102", slug: "room_102" },
-    { roomNo: "Room 103", slug: "room_103" },
-    { roomNo: "Room 104", slug: "room_104" },
-    { roomNo: "Room 105", slug: "room_105" },
-    { roomNo: "Room 106", slug: "room_106" },
-    { roomNo: "Room 107", slug: "room_107" },
-    { roomNo: "Room 108", slug: "room_108" },
-    { roomNo: "Room 109", slug: "room_109" },
-    { roomNo: "Room 110", slug: "room_110" },
-    { roomNo: "Room 111", slug: "room_111" },
-    { roomNo: "Room 112", slug: "room_112" },
-    { roomNo: "Room 201", slug: "room_201" },
-    { roomNo: "Room 202", slug: "room_202" },
-    { roomNo: "Room 203", slug: "room_203" },
-    { roomNo: "Room 204", slug: "room_204" },
-    { roomNo: "Room 205", slug: "room_205" },
-    { roomNo: "Room 206", slug: "room_206" },
-    { roomNo: "Lab 101", slug: "lab_101" },
-    { roomNo: "Lab 102", slug: "lab_102" },
-    { roomNo: "Lab 201", slug: "lab_201" },
-    { roomNo: "Lab 202", slug: "lab_202" },
-    { roomNo: "Classroom 101", slug: "classroom_101" },
-    { roomNo: "Classroom 102", slug: "classroom_102" },
-    { roomNo: "Office Room", slug: "office_room" },
-    { roomNo: "Server Room", slug: "server_room" },
-    { roomNo: "Control Room", slug: "control_room" }
-  ];
+  const roomOptions = buildRoomOptions();
 
   setPageTitle();
   bindEvents();
@@ -143,29 +117,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (roomForm) {
       roomForm.addEventListener("submit", handleCreateRoom);
     }
-
-    if (roomNoInput) {
-      roomNoInput.addEventListener("input", () => {
-        refreshSuggestionIfOpen(roomVerificationSuggestions, getRoomVerificationSuggestions);
-        refreshSuggestionIfOpen(roomPageLinkSuggestions, getRoomPageLinkSuggestions);
-      });
-    }
-
-    if (roomVerificationIdInput) {
-      roomVerificationIdInput.addEventListener("input", () => {
-        refreshSuggestionIfOpen(roomPageLinkSuggestions, getRoomPageLinkSuggestions);
-      });
-    }
   }
 
   function setupCustomSuggestions() {
     setupSuggestionField({
-      input: roomNoInput,
-      box: roomNoSuggestions,
-      getSuggestions: getRoomNoSuggestions,
+      input: roomNameInput,
+      box: roomNameSuggestions,
+      getSuggestions: getRoomNameSuggestions,
       onSelect: (value) => {
-        roomNoInput.value = value;
-        hideSuggestionBox(roomNoSuggestions);
+        roomNameInput.value = value;
       }
     });
 
@@ -175,7 +135,6 @@ document.addEventListener("DOMContentLoaded", () => {
       getSuggestions: getRoomVerificationSuggestions,
       onSelect: (value) => {
         roomVerificationIdInput.value = value;
-        hideSuggestionBox(roomVerificationSuggestions);
       }
     });
 
@@ -185,7 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
       getSuggestions: getRoomPageLinkSuggestions,
       onSelect: (value) => {
         roomPageLinkInput.value = value;
-        hideSuggestionBox(roomPageLinkSuggestions);
       }
     });
   }
@@ -210,54 +168,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function refreshSuggestionIfOpen(box, getSuggestions) {
-    if (!box || box.classList.contains("hidden")) return;
-
-    let relatedInputValue = "";
-
-    if (box === roomVerificationSuggestions && roomVerificationIdInput) {
-      relatedInputValue = roomVerificationIdInput.value;
-    }
-
-    if (box === roomPageLinkSuggestions && roomPageLinkInput) {
-      relatedInputValue = roomPageLinkInput.value;
-    }
-
-    const suggestions = getSuggestions(relatedInputValue);
-
-    renderSuggestionBox(box, suggestions, (value) => {
-      if (box === roomVerificationSuggestions && roomVerificationIdInput) {
-        roomVerificationIdInput.value = value;
-      }
-
-      if (box === roomPageLinkSuggestions && roomPageLinkInput) {
-        roomPageLinkInput.value = value;
-      }
-
-      hideSuggestionBox(box);
-    });
-  }
-
-  function getRoomNoSuggestions(query = "") {
+  function getRoomNameSuggestions(query = "") {
     const search = query.trim().toLowerCase();
 
     if (!search) {
-      return roomOptions.map((item) => item.roomNo);
+      return roomOptions.map((item) => item.name);
     }
 
     return roomOptions
       .filter((item) => {
         return (
-          item.roomNo.toLowerCase().includes(search) ||
+          item.name.toLowerCase().includes(search) ||
           item.slug.toLowerCase().includes(search)
         );
       })
-      .map((item) => item.roomNo);
+      .map((item) => item.name);
   }
 
   function getRoomVerificationSuggestions(query = "") {
-    const selectedRoom = findRoomByNo(roomNoInput.value);
     const search = query.trim().toLowerCase();
+    const selectedRoom = findRoomByName(roomNameInput.value);
+    const typedRoomSlug = slugifyRoom(roomNameInput.value);
 
     if (selectedRoom) {
       if (!search || selectedRoom.slug.includes(search)) {
@@ -266,8 +197,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       return [];
     }
-
-    const typedRoomSlug = slugifyRoom(roomNoInput.value);
 
     if (typedRoomSlug) {
       if (!search || typedRoomSlug.includes(search)) {
@@ -282,7 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return roomOptions
       .filter((item) => {
         return (
-          item.roomNo.toLowerCase().includes(search) ||
+          item.name.toLowerCase().includes(search) ||
           item.slug.toLowerCase().includes(search)
         );
       })
@@ -290,10 +219,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getRoomPageLinkSuggestions(query = "") {
-    const selectedRoom = findRoomByNo(roomNoInput.value);
     const search = query.trim().toLowerCase();
-
     const typedVerificationId = roomVerificationIdInput.value.trim();
+    const selectedRoom = findRoomByName(roomNameInput.value);
+    const typedRoomSlug = slugifyRoom(roomNameInput.value);
 
     if (typedVerificationId) {
       const link = makeRoomHomepageLink(typedVerificationId);
@@ -315,14 +244,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return [];
     }
 
-    const typedRoomSlug = slugifyRoom(roomNoInput.value);
-
     if (typedRoomSlug) {
       const link = makeRoomHomepageLink(typedRoomSlug);
 
       if (!search || link.toLowerCase().includes(search)) {
         return [link];
       }
+
+      return [];
     }
 
     if (!search) {
@@ -334,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const link = makeRoomHomepageLink(item.slug).toLowerCase();
 
         return (
-          item.roomNo.toLowerCase().includes(search) ||
+          item.name.toLowerCase().includes(search) ||
           item.slug.toLowerCase().includes(search) ||
           link.includes(search)
         );
@@ -343,6 +272,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderSuggestionBox(box, suggestions, onSelect) {
+    if (!box) return;
+
     hideAllSuggestionsExcept(box);
 
     box.innerHTML = "";
@@ -352,7 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const uniqueSuggestions = [...new Set(suggestions)].slice(0, 8);
+    const uniqueSuggestions = [...new Set(suggestions)].slice(0, 30);
 
     uniqueSuggestions.forEach((suggestion) => {
       const button = document.createElement("button");
@@ -384,14 +315,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function hideAllSuggestions() {
-    hideSuggestionBox(roomNoSuggestions);
+    hideSuggestionBox(roomNameSuggestions);
     hideSuggestionBox(roomVerificationSuggestions);
     hideSuggestionBox(roomPageLinkSuggestions);
   }
 
   function hideAllSuggestionsExcept(activeBox) {
-    if (activeBox !== roomNoSuggestions) {
-      hideSuggestionBox(roomNoSuggestions);
+    if (activeBox !== roomNameSuggestions) {
+      hideSuggestionBox(roomNameSuggestions);
     }
 
     if (activeBox !== roomVerificationSuggestions) {
@@ -403,12 +334,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function findRoomByNo(roomNo) {
-    const cleanRoomNo = String(roomNo || "").trim().toLowerCase();
+  function getOrCreateSuggestionBox(input, id) {
+    if (!input) return null;
 
-    if (!cleanRoomNo) return null;
+    const existingBox = document.getElementById(id);
 
-    return roomOptions.find((item) => item.roomNo.toLowerCase() === cleanRoomNo) || null;
+    if (existingBox) {
+      return existingBox;
+    }
+
+    const wrapper = input.closest(".form-group");
+
+    if (!wrapper) {
+      return null;
+    }
+
+    wrapper.classList.add("suggest-wrap");
+
+    const box = document.createElement("div");
+    box.id = id;
+    box.className = "black-suggestion-box hidden";
+
+    wrapper.appendChild(box);
+
+    return box;
+  }
+
+  function findRoomByName(roomName) {
+    const cleanRoomName = String(roomName || "").trim().toLowerCase();
+
+    if (!cleanRoomName) return null;
+
+    return roomOptions.find((item) => item.name.toLowerCase() === cleanRoomName) || null;
   }
 
   function openSidebar() {
@@ -455,7 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.add("modal-open");
 
     setTimeout(() => {
-      roomNoInput?.focus();
+      roomNameInput?.focus();
     }, 50);
   }
 
@@ -581,13 +538,13 @@ document.addEventListener("DOMContentLoaded", () => {
     hideAlert();
     hideAllSuggestions();
 
-    const roomNo = roomNoInput.value.trim();
+    const roomName = roomNameInput.value.trim();
     const roomVerificationId = roomVerificationIdInput.value.trim();
     const pageLink = roomPageLinkInput.value.trim();
 
-    if (!roomNo) {
-      showAlert("Please enter Room No.", "danger");
-      roomNoInput.focus();
+    if (!roomName) {
+      showAlert("Please enter Room Name.", "danger");
+      roomNameInput.focus();
       return;
     }
 
@@ -639,7 +596,7 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({
           building_verification_id: BUILDING_VERIFICATION_ID,
           floor_verification_id: FLOOR_VERIFICATION_ID,
-          room_name: roomNo,
+          room_name: roomName,
           room_verification_id: roomVerificationId,
           page_link: pageLink
         })
@@ -663,8 +620,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  async function removeRoom(id, roomNo) {
-    const confirmed = window.confirm(`Remove ${roomNo}?`);
+  async function removeRoom(id, roomName) {
+    const confirmed = window.confirm(`Remove ${roomName}?`);
 
     if (!confirmed) return;
 
@@ -723,6 +680,38 @@ document.addEventListener("DOMContentLoaded", () => {
     pageAlert.className = "alert hidden";
   }
 });
+
+function buildRoomOptions() {
+  const options = [];
+
+  for (let floor = 1; floor <= 12; floor += 1) {
+    for (let room = 1; room <= 20; room += 1) {
+      const number = `${floor}${String(room).padStart(2, "0")}`;
+      options.push({
+        name: `Room ${number}`,
+        slug: `room_${number}`
+      });
+    }
+  }
+
+  const extraRooms = [
+    ["Lab 101", "lab_101"],
+    ["Lab 102", "lab_102"],
+    ["Lab 201", "lab_201"],
+    ["Lab 202", "lab_202"],
+    ["Classroom 101", "classroom_101"],
+    ["Classroom 102", "classroom_102"],
+    ["Office Room", "office_room"],
+    ["Server Room", "server_room"],
+    ["Control Room", "control_room"]
+  ];
+
+  extraRooms.forEach(([name, slug]) => {
+    options.push({ name, slug });
+  });
+
+  return options;
+}
 
 function getBuildingSlugFromUrl() {
   const parts = window.location.pathname.split("/").filter(Boolean);
