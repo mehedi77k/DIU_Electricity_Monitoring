@@ -1,46 +1,45 @@
 <?php
-
 require_once __DIR__ . '/../config/bootstrap.php';
 
-function send_json_response(bool $status, string $message, array $data = [], int $httpCode = 200): void
+function dynamic_page_response(bool $status, string $message, array $data = [], int $httpCode = 200): void
 {
     http_response_code($httpCode);
-
     echo json_encode([
         'status' => $status,
         'success' => $status,
         'message' => $message,
-        'data' => $data
+        'data' => $data,
     ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-
     exit;
 }
 
-function clean_input_value($value): string
+function dynamic_clean($value): string
 {
-    return trim((string) $value);
+    return trim((string)$value);
 }
 
-function is_valid_slug(string $value): bool
+function dynamic_valid_slug(string $value, int $max = 180): bool
 {
-    return (bool) preg_match('/^[a-z0-9_]+$/', $value);
+    return (bool)preg_match('/^[a-z0-9_]{2,' . $max . '}$/', $value);
 }
 
-function create_floor_homepage(string $pageLink, string $buildingVerificationId, string $floorName): void
+function dynamic_safe_html(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+}
+
+function dynamic_ensure_directory_from_link(string $pageLink): ?string
 {
     $pagePath = parse_url($pageLink, PHP_URL_PATH);
-
     if (!$pagePath) {
-        return;
+        return null;
     }
 
-    $requiredPart = '/daffodil_smart_city/buildings/' . $buildingVerificationId . '/floors/';
-
-    if (strpos($pagePath, $requiredPart) === false) {
-        return;
+    $documentRoot = rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
+    if ($documentRoot === '') {
+        return null;
     }
 
-    $documentRoot = rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']), '/');
     $fullPath = $documentRoot . $pagePath;
     $fullPath = str_replace('\\', '/', $fullPath);
 
@@ -52,160 +51,84 @@ function create_floor_homepage(string $pageLink, string $buildingVerificationId,
         mkdir($fullPath, 0777, true);
     }
 
-    $indexFile = $fullPath . 'index.html';
+    return $fullPath;
+}
 
-    $safeFloorName = htmlspecialchars($floorName, ENT_QUOTES, 'UTF-8');
+function create_floor_homepage_if_missing(string $pageLink, string $buildingVerificationId, string $floorVerificationId, string $floorName): void
+{
+    $fullPath = dynamic_ensure_directory_from_link($pageLink);
+    if (!$fullPath) {
+        return;
+    }
+
+    $indexFile = $fullPath . 'index.html';
+    if (file_exists($indexFile)) {
+        return;
+    }
+
+    $safeFloorName = dynamic_safe_html($floorName);
+    $safeBuildingSlug = dynamic_safe_html($buildingVerificationId);
 
     $html = <<<HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{$safeFloorName} | Daffodil Smart City</title>
-  <link rel="stylesheet" href="../../assets/css/style.css" />
+  <link rel="stylesheet" href="../../../../assets/css/style.css">
 </head>
-
-<body class="building-page">
-  <button class="burger-btn" id="burgerBtn" type="button" aria-label="Open menu" aria-expanded="false">
-    ☰
-  </button>
-
+<body>
+  <button class="burger-btn" id="burgerBtn" aria-label="Toggle menu" aria-expanded="false">☰</button>
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-mark small">⚡</div>
-
-      <div>
-        <h2>Level</h2>
-        <span>Room Manager</span>
-      </div>
-    </div>
-
-    <nav class="side-nav">
-      <a href="../../../../">Daffodil Smart City</a>
+    <div class="brand"><span class="brand-icon">⚡</span><div><h2>Level</h2><p>Room Manager</p></div></div>
+    <nav class="nav-links">
+      <a href="../../../../index.html">Daffodil Smart City</a>
       <a href="../../../../../electricity_frontend/dashboard.html">Admin Dashboard</a>
-      <a href="../../">Building Home</a>
-      <a href="./" class="active">Level Home</a>
+      <a href="../../index.html">Building Home</a>
+      <a href="index.html">Level Home</a>
     </nav>
   </aside>
 
   <main class="main-content">
-    <div class="content-shell">
-      <header class="topbar">
-        <div class="topbar-title">
-          <p class="eyebrow">Level Home</p>
-          <h1 id="pageTitle">{$safeFloorName}</h1>
-          <p class="muted" id="pageSubtitle">Add and manage rooms under this level.</p>
-        </div>
-      </header>
+    <section class="page-header">
+      <p class="eyebrow">Level Home</p>
+      <h1 id="pageTitle">{$safeFloorName}</h1>
+      <p id="pageSubtitle">Add and manage rooms under {$safeBuildingSlug} / {$safeFloorName}.</p>
+      <button class="primary-btn" id="addRoomBtn">+ Add Rooms</button>
+    </section>
 
-      <div id="pageAlert" class="alert hidden"></div>
+    <div id="pageAlert" class="alert hidden"></div>
 
-      <section class="center-action-wrap">
-        <button class="add-device-btn center-add-btn" id="addRoomBtn" type="button">
-          <span>+</span>
-          Add Rooms
-        </button>
-      </section>
-
-      <section class="devices-panel">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Room Cards</p>
-            <h2>Added Rooms</h2>
-          </div>
-        </div>
-
-        <div class="device-grid" id="roomGrid"></div>
-      </section>
-    </div>
+    <section class="devices-section">
+      <div class="section-heading"><div><p class="eyebrow">Room Cards</p><h2>Added Rooms</h2></div></div>
+      <div class="device-grid" id="roomGrid"></div>
+    </section>
   </main>
 
-  <div class="modal-overlay hidden" id="roomModal">
+  <div class="modal hidden" id="roomModal" role="dialog" aria-modal="true">
     <div class="modal-card">
-      <div class="modal-head">
-        <div>
-          <p class="eyebrow">Connect Room</p>
-          <h2>Add Room Homepage</h2>
-        </div>
-
-        <button class="modal-close-btn" id="modalCloseBtn" type="button" aria-label="Close modal">
-          ×
-        </button>
-      </div>
-
-      <form
-        id="roomForm"
-        class="building-form"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-      >
-        <div class="form-group suggest-wrap">
-          <label for="roomName">Room Name</label>
-          <input
-            type="text"
-            id="roomName"
-            name="room_name_manual_2026"
-            placeholder="Select or type room name"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"
-            spellcheck="false"
-            required
-          />
-          <div class="black-suggestion-box hidden" id="roomNameSuggestions"></div>
-        </div>
-
-        <div class="form-group suggest-wrap">
-          <label for="roomVerificationId">Verification ID</label>
-          <input
-            type="text"
-            id="roomVerificationId"
-            name="room_verification_id_manual_2026"
-            placeholder="Enter room verification ID"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"
-            spellcheck="false"
-            required
-          />
-          <div class="black-suggestion-box hidden" id="roomVerificationSuggestions"></div>
-        </div>
-
-        <div class="form-group suggest-wrap">
-          <label for="roomPageLink">Homepage Link</label>
-          <input
-            type="text"
-            id="roomPageLink"
-            name="room_homepage_link_manual_2026"
-            placeholder="Paste room homepage link"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"
-            spellcheck="false"
-            required
-          />
-          <div class="black-suggestion-box hidden" id="roomPageLinkSuggestions"></div>
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn-secondary" id="modalCancelBtn" type="button">
-            Cancel
-          </button>
-
-          <button class="add-device-btn" id="saveRoomBtn" type="submit">
-            Save Room
-          </button>
-        </div>
+      <div class="modal-header"><h2>Add Room Homepage</h2><button type="button" class="icon-btn" id="modalCloseBtn">×</button></div>
+      <form id="roomForm" class="modal-form">
+        <label class="suggest-wrap">Room Name / No
+          <input type="text" id="roomNo" autocomplete="off" required>
+          <div id="roomNoSuggestions" class="black-suggestions hidden"></div>
+        </label>
+        <label class="suggest-wrap">Verification ID
+          <input type="text" id="roomVerificationId" autocomplete="off" required>
+          <div id="roomVerificationSuggestions" class="black-suggestions hidden"></div>
+        </label>
+        <label class="suggest-wrap">Homepage Link
+          <input type="url" id="roomPageLink" autocomplete="off" required>
+          <div id="roomPageLinkSuggestions" class="black-suggestions hidden"></div>
+        </label>
+        <div class="modal-actions"><button type="button" class="secondary-btn" id="modalCancelBtn">Cancel</button><button type="submit" class="primary-btn" id="saveRoomBtn">Save Room</button></div>
       </form>
     </div>
   </div>
 
-  <script src="../../assets/js/room-app.js?v=room-fixed-2026-05-05"></script>
+  <script src="../../../../assets/js/floor-page.js"></script>
 </body>
 </html>
 HTML;
@@ -214,74 +137,54 @@ HTML;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    send_json_response(false, 'Only POST request is allowed.', [], 405);
+    dynamic_page_response(false, 'Only POST request is allowed.', [], 405);
 }
 
-if (!isset($_SESSION['admin_id'])) {
-    send_json_response(false, 'Unauthorized. Please login first.', [], 401);
+if (empty($_SESSION['admin_id'])) {
+    dynamic_page_response(false, 'Unauthorized. Please login first.', [], 401);
 }
 
-$rawInput = file_get_contents('php://input');
-$input = json_decode($rawInput, true);
-
+$input = json_decode(file_get_contents('php://input'), true);
 if (!is_array($input)) {
-    send_json_response(false, 'Invalid JSON request.', [], 400);
+    dynamic_page_response(false, 'Invalid JSON request.', [], 400);
 }
 
-$buildingVerificationId = clean_input_value($input['building_verification_id'] ?? '');
-$floorName = clean_input_value($input['floor_name'] ?? '');
-$floorVerificationId = clean_input_value($input['floor_verification_id'] ?? '');
-$pageLink = clean_input_value($input['page_link'] ?? '');
+$buildingVerificationId = dynamic_clean($input['building_verification_id'] ?? '');
+$floorName = dynamic_clean($input['floor_name'] ?? '');
+$floorVerificationId = dynamic_clean($input['floor_verification_id'] ?? '');
+$pageLink = dynamic_clean($input['page_link'] ?? '');
 
-if ($buildingVerificationId === '') {
-    send_json_response(false, 'Building verification ID is required.', [], 422);
-}
-
-if (!is_valid_slug($buildingVerificationId)) {
-    send_json_response(false, 'Building verification ID can contain only lowercase letters, numbers, and underscore.', [], 422);
+if ($buildingVerificationId === '' || !dynamic_valid_slug($buildingVerificationId, 150)) {
+    dynamic_page_response(false, 'Invalid building verification ID.', [], 422);
 }
 
 if ($floorName === '') {
-    send_json_response(false, 'Level name is required.', [], 422);
+    dynamic_page_response(false, 'Level name is required.', [], 422);
 }
 
-if ($floorVerificationId === '') {
-    send_json_response(false, 'Level verification ID is required.', [], 422);
-}
-
-if (!is_valid_slug($floorVerificationId)) {
-    send_json_response(false, 'Level verification ID can contain only lowercase letters, numbers, and underscore.', [], 422);
+if ($floorVerificationId === '' || !dynamic_valid_slug($floorVerificationId, 180)) {
+    dynamic_page_response(false, 'Invalid level verification ID.', [], 422);
 }
 
 if ($pageLink === '') {
-    send_json_response(false, 'Homepage link is required.', [], 422);
+    dynamic_page_response(false, 'Homepage link is required.', [], 422);
 }
 
-if (
-    stripos($pageLink, 'javascript:') === 0 ||
-    stripos($pageLink, 'data:') === 0
-) {
-    send_json_response(false, 'Invalid homepage link.', [], 422);
+if (stripos($pageLink, 'javascript:') === 0 || stripos($pageLink, 'data:') === 0) {
+    dynamic_page_response(false, 'Invalid homepage link.', [], 422);
 }
 
 $pagePath = parse_url($pageLink, PHP_URL_PATH);
-
 if (!$pagePath) {
-    send_json_response(false, 'Invalid homepage link path.', [], 422);
+    dynamic_page_response(false, 'Invalid homepage link path.', [], 422);
 }
 
 $expectedPathPart = '/daffodil_smart_city/buildings/' . $buildingVerificationId . '/floors/' . $floorVerificationId . '/';
-
 if (strpos($pagePath, $expectedPathPart) === false) {
-    send_json_response(
-        false,
-        'Homepage link does not match this building and level verification ID. Expected path should contain: ' . $expectedPathPart,
-        [],
-        422
-    );
+    dynamic_page_response(false, 'Homepage link does not match this building and level verification ID. Expected path should contain: ' . $expectedPathPart, [], 422);
 }
 
-$buildingStmt = $conn->prepare("
+$buildingStmt = $conn->prepare(" 
     SELECT id
     FROM building_pages
     WHERE verification_table = ?
@@ -290,8 +193,8 @@ $buildingStmt = $conn->prepare("
 ");
 
 if (!$buildingStmt) {
-    send_json_response(false, 'Database prepare failed while checking building_pages.', [
-        'error' => $conn->error
+    dynamic_page_response(false, 'Database prepare failed while checking building_pages.', [
+        'error' => $conn->error,
     ], 500);
 }
 
@@ -300,13 +203,37 @@ $buildingStmt->execute();
 $buildingResult = $buildingStmt->get_result();
 
 if ($buildingResult->num_rows !== 1) {
-    send_json_response(false, 'This building was not found in building_pages table or it is inactive.', [], 404);
+    dynamic_page_response(false, 'This building was not found in building_pages or it is inactive.', [], 404);
 }
 
 $buildingRow = $buildingResult->fetch_assoc();
-$buildingPageId = (int) $buildingRow['id'];
+$buildingPageId = (int)$buildingRow['id'];
 
-$checkStmt = $conn->prepare("
+$catalogStmt = $conn->prepare(" 
+    SELECT id
+    FROM level_catalog
+    WHERE building_verification_id = ?
+      AND level_name = ?
+      AND level_verification_id = ?
+      AND is_active = 1
+    LIMIT 1
+");
+
+if (!$catalogStmt) {
+    dynamic_page_response(false, 'Database prepare failed while checking level_catalog.', [
+        'error' => $conn->error,
+    ], 500);
+}
+
+$catalogStmt->bind_param('sss', $buildingVerificationId, $floorName, $floorVerificationId);
+$catalogStmt->execute();
+$catalogResult = $catalogStmt->get_result();
+
+if ($catalogResult->num_rows !== 1) {
+    dynamic_page_response(false, 'This level was not found in level_catalog. Check Level Name and Verification ID.', [], 404);
+}
+
+$checkStmt = $conn->prepare(" 
     SELECT id
     FROM floor_pages
     WHERE building_verification_id = ?
@@ -315,8 +242,8 @@ $checkStmt = $conn->prepare("
 ");
 
 if (!$checkStmt) {
-    send_json_response(false, 'Database prepare failed while checking level.', [
-        'error' => $conn->error
+    dynamic_page_response(false, 'Database prepare failed while checking level.', [
+        'error' => $conn->error,
     ], 500);
 }
 
@@ -326,9 +253,9 @@ $checkResult = $checkStmt->get_result();
 
 if ($checkResult->num_rows > 0) {
     $existing = $checkResult->fetch_assoc();
-    $existingId = (int) $existing['id'];
+    $existingId = (int)$existing['id'];
 
-    $updateStmt = $conn->prepare("
+    $updateStmt = $conn->prepare(" 
         UPDATE floor_pages
         SET building_page_id = ?,
             floor_name = ?,
@@ -339,67 +266,48 @@ if ($checkResult->num_rows > 0) {
     ");
 
     if (!$updateStmt) {
-        send_json_response(false, 'Database prepare failed while updating level.', [
-            'error' => $conn->error
+        dynamic_page_response(false, 'Database prepare failed while updating level.', [
+            'error' => $conn->error,
         ], 500);
     }
 
-    $updateStmt->bind_param(
-        'issi',
-        $buildingPageId,
-        $floorName,
-        $pageLink,
-        $existingId
-    );
+    $updateStmt->bind_param('issi', $buildingPageId, $floorName, $pageLink, $existingId);
 
     if (!$updateStmt->execute()) {
-        send_json_response(false, 'Failed to update level page.', [
-            'error' => $updateStmt->error
+        dynamic_page_response(false, 'Failed to update level page.', [
+            'error' => $updateStmt->error,
         ], 500);
     }
 
-    create_floor_homepage($pageLink, $buildingVerificationId, $floorName);
+    create_floor_homepage_if_missing($pageLink, $buildingVerificationId, $floorVerificationId, $floorName);
 
-    send_json_response(true, 'Level page updated successfully.', [
-        'id' => $existingId
+    dynamic_page_response(true, 'Level page updated successfully.', [
+        'id' => $existingId,
     ]);
 }
 
-$insertStmt = $conn->prepare("
-    INSERT INTO floor_pages (
-        building_page_id,
-        building_verification_id,
-        floor_name,
-        floor_verification_id,
-        page_link,
-        is_active
-    )
+$insertStmt = $conn->prepare(" 
+    INSERT INTO floor_pages
+      (building_page_id, building_verification_id, floor_name, floor_verification_id, page_link, is_active)
     VALUES (?, ?, ?, ?, ?, 1)
 ");
 
 if (!$insertStmt) {
-    send_json_response(false, 'Database prepare failed while creating level.', [
-        'error' => $conn->error
+    dynamic_page_response(false, 'Database prepare failed while creating level.', [
+        'error' => $conn->error,
     ], 500);
 }
 
-$insertStmt->bind_param(
-    'issss',
-    $buildingPageId,
-    $buildingVerificationId,
-    $floorName,
-    $floorVerificationId,
-    $pageLink
-);
+$insertStmt->bind_param('issss', $buildingPageId, $buildingVerificationId, $floorName, $floorVerificationId, $pageLink);
 
 if (!$insertStmt->execute()) {
-    send_json_response(false, 'Failed to create level page.', [
-        'error' => $insertStmt->error
+    dynamic_page_response(false, 'Failed to create level page.', [
+        'error' => $insertStmt->error,
     ], 500);
 }
 
-create_floor_homepage($pageLink, $buildingVerificationId, $floorName);
+create_floor_homepage_if_missing($pageLink, $buildingVerificationId, $floorVerificationId, $floorName);
 
-send_json_response(true, 'Level page connected successfully.', [
-    'id' => $conn->insert_id
+dynamic_page_response(true, 'Level page connected successfully.', [
+    'id' => (int)$conn->insert_id,
 ], 201);

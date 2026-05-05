@@ -1,50 +1,45 @@
 <?php
-
 require_once __DIR__ . '/../config/bootstrap.php';
 
-function send_json_response(bool $status, string $message, array $data = [], int $httpCode = 200): void
+function dynamic_page_response(bool $status, string $message, array $data = [], int $httpCode = 200): void
 {
     http_response_code($httpCode);
-
     echo json_encode([
         'status' => $status,
         'success' => $status,
         'message' => $message,
-        'data' => $data
+        'data' => $data,
     ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-
     exit;
 }
 
-function clean_input_value($value): string
+function dynamic_clean($value): string
 {
-    return trim((string) $value);
+    return trim((string)$value);
 }
 
-function is_valid_slug(string $value): bool
+function dynamic_valid_slug(string $value, int $max = 180): bool
 {
-    return (bool) preg_match('/^[a-z0-9_]+$/', $value);
+    return (bool)preg_match('/^[a-z0-9_]{2,' . $max . '}$/', $value);
 }
 
-function create_room_homepage_if_missing(
-    string $pageLink,
-    string $buildingVerificationId,
-    string $floorVerificationId,
-    string $roomName
-): void {
+function dynamic_safe_html(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+}
+
+function dynamic_ensure_directory_from_link(string $pageLink): ?string
+{
     $pagePath = parse_url($pageLink, PHP_URL_PATH);
-
     if (!$pagePath) {
-        return;
+        return null;
     }
 
-    $requiredPart = '/daffodil_smart_city/buildings/' . $buildingVerificationId . '/floors/' . $floorVerificationId . '/rooms/';
-
-    if (strpos($pagePath, $requiredPart) === false) {
-        return;
+    $documentRoot = rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
+    if ($documentRoot === '') {
+        return null;
     }
 
-    $documentRoot = rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']), '/');
     $fullPath = $documentRoot . $pagePath;
     $fullPath = str_replace('\\', '/', $fullPath);
 
@@ -56,59 +51,42 @@ function create_room_homepage_if_missing(
         mkdir($fullPath, 0777, true);
     }
 
-    $indexFile = $fullPath . 'index.html';
+    return $fullPath;
+}
 
+function create_room_homepage_if_missing(string $pageLink, string $buildingVerificationId, string $floorVerificationId, string $roomName): void
+{
+    $fullPath = dynamic_ensure_directory_from_link($pageLink);
+    if (!$fullPath) {
+        return;
+    }
+
+    $indexFile = $fullPath . 'index.html';
     if (file_exists($indexFile)) {
         return;
     }
 
-    $safeRoomName = htmlspecialchars($roomName, ENT_QUOTES, 'UTF-8');
-    $safeBuildingName = htmlspecialchars(str_replace('_', ' ', $buildingVerificationId), ENT_QUOTES, 'UTF-8');
-    $safeFloorName = htmlspecialchars(str_replace('_', ' ', $floorVerificationId), ENT_QUOTES, 'UTF-8');
+    $safeRoomName = dynamic_safe_html($roomName);
+    $safeBuilding = dynamic_safe_html(str_replace('_', ' ', $buildingVerificationId));
+    $safeFloor = dynamic_safe_html(str_replace('_', ' ', $floorVerificationId));
 
     $html = <<<HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{$safeRoomName} | Daffodil Smart City</title>
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      font-family: Arial, sans-serif;
-      background: #eef4fb;
-      color: #172033;
-    }
-
-    .card {
-      width: min(90%, 700px);
-      padding: 42px;
-      border-radius: 24px;
-      background: #ffffff;
-      box-shadow: 0 24px 70px rgba(28, 55, 90, 0.16);
-    }
-
-    h1 {
-      margin: 0 0 12px;
-      font-size: 42px;
-    }
-
-    p {
-      margin: 0;
-      color: #6d7b91;
-      font-size: 18px;
-    }
-  </style>
+  <link rel="stylesheet" href="../../../../../../assets/css/style.css">
 </head>
-
 <body>
-  <main class="card">
-    <h1>{$safeRoomName}</h1>
-    <p>{$safeBuildingName} - {$safeFloorName} room homepage.</p>
+  <main class="main-content">
+    <section class="page-header">
+      <p class="eyebrow">Room Home</p>
+      <h1>{$safeRoomName}</h1>
+      <p>{$safeBuilding} - {$safeFloor}</p>
+      <a class="primary-btn" href="../../index.html">Back to Level</a>
+    </section>
   </main>
 </body>
 </html>
@@ -118,83 +96,59 @@ HTML;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    send_json_response(false, 'Only POST request is allowed.', [], 405);
+    dynamic_page_response(false, 'Only POST request is allowed.', [], 405);
 }
 
-if (!isset($_SESSION['admin_id'])) {
-    send_json_response(false, 'Unauthorized. Please login first.', [], 401);
+if (empty($_SESSION['admin_id'])) {
+    dynamic_page_response(false, 'Unauthorized. Please login first.', [], 401);
 }
 
-$rawInput = file_get_contents('php://input');
-$input = json_decode($rawInput, true);
-
+$input = json_decode(file_get_contents('php://input'), true);
 if (!is_array($input)) {
-    send_json_response(false, 'Invalid JSON request.', [], 400);
+    dynamic_page_response(false, 'Invalid JSON request.', [], 400);
 }
 
-$buildingVerificationId = clean_input_value($input['building_verification_id'] ?? '');
-$floorVerificationId = clean_input_value($input['floor_verification_id'] ?? '');
-$roomName = clean_input_value($input['room_name'] ?? '');
-$roomVerificationId = clean_input_value($input['room_verification_id'] ?? '');
-$pageLink = clean_input_value($input['page_link'] ?? '');
+$buildingVerificationId = dynamic_clean($input['building_verification_id'] ?? '');
+$floorVerificationId = dynamic_clean($input['floor_verification_id'] ?? '');
+$roomName = dynamic_clean($input['room_name'] ?? '');
+$roomVerificationId = dynamic_clean($input['room_verification_id'] ?? '');
+$pageLink = dynamic_clean($input['page_link'] ?? '');
 
-if ($buildingVerificationId === '') {
-    send_json_response(false, 'Building verification ID is required.', [], 422);
+if ($buildingVerificationId === '' || !dynamic_valid_slug($buildingVerificationId, 150)) {
+    dynamic_page_response(false, 'Invalid building verification ID.', [], 422);
 }
 
-if (!is_valid_slug($buildingVerificationId)) {
-    send_json_response(false, 'Building verification ID can contain only lowercase letters, numbers, and underscore.', [], 422);
-}
-
-if ($floorVerificationId === '') {
-    send_json_response(false, 'Level verification ID is required.', [], 422);
-}
-
-if (!is_valid_slug($floorVerificationId)) {
-    send_json_response(false, 'Level verification ID can contain only lowercase letters, numbers, and underscore.', [], 422);
+if ($floorVerificationId === '' || !dynamic_valid_slug($floorVerificationId, 180)) {
+    dynamic_page_response(false, 'Invalid level verification ID.', [], 422);
 }
 
 if ($roomName === '') {
-    send_json_response(false, 'Room name is required.', [], 422);
+    dynamic_page_response(false, 'Room name is required.', [], 422);
 }
 
-if ($roomVerificationId === '') {
-    send_json_response(false, 'Room verification ID is required.', [], 422);
-}
-
-if (!is_valid_slug($roomVerificationId)) {
-    send_json_response(false, 'Room verification ID can contain only lowercase letters, numbers, and underscore.', [], 422);
+if ($roomVerificationId === '' || !dynamic_valid_slug($roomVerificationId, 180)) {
+    dynamic_page_response(false, 'Invalid room verification ID.', [], 422);
 }
 
 if ($pageLink === '') {
-    send_json_response(false, 'Room homepage link is required.', [], 422);
+    dynamic_page_response(false, 'Room homepage link is required.', [], 422);
 }
 
-if (
-    stripos($pageLink, 'javascript:') === 0 ||
-    stripos($pageLink, 'data:') === 0
-) {
-    send_json_response(false, 'Invalid homepage link.', [], 422);
+if (stripos($pageLink, 'javascript:') === 0 || stripos($pageLink, 'data:') === 0) {
+    dynamic_page_response(false, 'Invalid homepage link.', [], 422);
 }
 
 $pagePath = parse_url($pageLink, PHP_URL_PATH);
-
 if (!$pagePath) {
-    send_json_response(false, 'Invalid homepage link path.', [], 422);
+    dynamic_page_response(false, 'Invalid homepage link path.', [], 422);
 }
 
 $expectedPathPart = '/daffodil_smart_city/buildings/' . $buildingVerificationId . '/floors/' . $floorVerificationId . '/rooms/' . $roomVerificationId . '/';
-
 if (strpos($pagePath, $expectedPathPart) === false) {
-    send_json_response(
-        false,
-        'Homepage link does not match this building, level, and room verification ID. Expected path should contain: ' . $expectedPathPart,
-        [],
-        422
-    );
+    dynamic_page_response(false, 'Homepage link does not match this building, level, and room verification ID. Expected path should contain: ' . $expectedPathPart, [], 422);
 }
 
-$floorStmt = $conn->prepare("
+$floorStmt = $conn->prepare(" 
     SELECT id
     FROM floor_pages
     WHERE building_verification_id = ?
@@ -204,8 +158,8 @@ $floorStmt = $conn->prepare("
 ");
 
 if (!$floorStmt) {
-    send_json_response(false, 'Database prepare failed while checking floor_pages.', [
-        'error' => $conn->error
+    dynamic_page_response(false, 'Database prepare failed while checking floor_pages.', [
+        'error' => $conn->error,
     ], 500);
 }
 
@@ -214,13 +168,38 @@ $floorStmt->execute();
 $floorResult = $floorStmt->get_result();
 
 if ($floorResult->num_rows !== 1) {
-    send_json_response(false, 'This level was not found in floor_pages table. Go back to the building page and add/save this level first.', [], 404);
+    dynamic_page_response(false, 'This level was not found in floor_pages. Add/save this level first.', [], 404);
 }
 
 $floorRow = $floorResult->fetch_assoc();
-$floorPageId = (int) $floorRow['id'];
+$floorPageId = (int)$floorRow['id'];
 
-$checkStmt = $conn->prepare("
+$catalogStmt = $conn->prepare(" 
+    SELECT id
+    FROM room_catalog
+    WHERE building_verification_id = ?
+      AND level_verification_id = ?
+      AND room_name = ?
+      AND room_verification_id = ?
+      AND is_active = 1
+    LIMIT 1
+");
+
+if (!$catalogStmt) {
+    dynamic_page_response(false, 'Database prepare failed while checking room_catalog.', [
+        'error' => $conn->error,
+    ], 500);
+}
+
+$catalogStmt->bind_param('ssss', $buildingVerificationId, $floorVerificationId, $roomName, $roomVerificationId);
+$catalogStmt->execute();
+$catalogResult = $catalogStmt->get_result();
+
+if ($catalogResult->num_rows !== 1) {
+    dynamic_page_response(false, 'This room was not found in room_catalog. Check Room Name and Verification ID.', [], 404);
+}
+
+$checkStmt = $conn->prepare(" 
     SELECT id
     FROM room_pages
     WHERE building_verification_id = ?
@@ -230,8 +209,8 @@ $checkStmt = $conn->prepare("
 ");
 
 if (!$checkStmt) {
-    send_json_response(false, 'Database prepare failed while checking room.', [
-        'error' => $conn->error
+    dynamic_page_response(false, 'Database prepare failed while checking room.', [
+        'error' => $conn->error,
     ], 500);
 }
 
@@ -241,9 +220,9 @@ $checkResult = $checkStmt->get_result();
 
 if ($checkResult->num_rows > 0) {
     $existing = $checkResult->fetch_assoc();
-    $existingId = (int) $existing['id'];
+    $existingId = (int)$existing['id'];
 
-    $updateStmt = $conn->prepare("
+    $updateStmt = $conn->prepare(" 
         UPDATE room_pages
         SET floor_page_id = ?,
             room_name = ?,
@@ -254,69 +233,48 @@ if ($checkResult->num_rows > 0) {
     ");
 
     if (!$updateStmt) {
-        send_json_response(false, 'Database prepare failed while updating room.', [
-            'error' => $conn->error
+        dynamic_page_response(false, 'Database prepare failed while updating room.', [
+            'error' => $conn->error,
         ], 500);
     }
 
-    $updateStmt->bind_param(
-        'issi',
-        $floorPageId,
-        $roomName,
-        $pageLink,
-        $existingId
-    );
+    $updateStmt->bind_param('issi', $floorPageId, $roomName, $pageLink, $existingId);
 
     if (!$updateStmt->execute()) {
-        send_json_response(false, 'Failed to update room page.', [
-            'error' => $updateStmt->error
+        dynamic_page_response(false, 'Failed to update room page.', [
+            'error' => $updateStmt->error,
         ], 500);
     }
 
     create_room_homepage_if_missing($pageLink, $buildingVerificationId, $floorVerificationId, $roomName);
 
-    send_json_response(true, 'Room page updated successfully.', [
-        'id' => $existingId
+    dynamic_page_response(true, 'Room page updated successfully.', [
+        'id' => $existingId,
     ]);
 }
 
-$insertStmt = $conn->prepare("
-    INSERT INTO room_pages (
-        floor_page_id,
-        building_verification_id,
-        floor_verification_id,
-        room_name,
-        room_verification_id,
-        page_link,
-        is_active
-    )
+$insertStmt = $conn->prepare(" 
+    INSERT INTO room_pages
+      (floor_page_id, building_verification_id, floor_verification_id, room_name, room_verification_id, page_link, is_active)
     VALUES (?, ?, ?, ?, ?, ?, 1)
 ");
 
 if (!$insertStmt) {
-    send_json_response(false, 'Database prepare failed while creating room.', [
-        'error' => $conn->error
+    dynamic_page_response(false, 'Database prepare failed while creating room.', [
+        'error' => $conn->error,
     ], 500);
 }
 
-$insertStmt->bind_param(
-    'isssss',
-    $floorPageId,
-    $buildingVerificationId,
-    $floorVerificationId,
-    $roomName,
-    $roomVerificationId,
-    $pageLink
-);
+$insertStmt->bind_param('isssss', $floorPageId, $buildingVerificationId, $floorVerificationId, $roomName, $roomVerificationId, $pageLink);
 
 if (!$insertStmt->execute()) {
-    send_json_response(false, 'Failed to create room page.', [
-        'error' => $insertStmt->error
+    dynamic_page_response(false, 'Failed to create room page.', [
+        'error' => $insertStmt->error,
     ], 500);
 }
 
 create_room_homepage_if_missing($pageLink, $buildingVerificationId, $floorVerificationId, $roomName);
 
-send_json_response(true, 'Room page connected successfully.', [
-    'id' => $conn->insert_id
+dynamic_page_response(true, 'Room page connected successfully.', [
+    'id' => (int)$conn->insert_id,
 ], 201);
