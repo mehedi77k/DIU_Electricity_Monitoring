@@ -1,148 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Level | Daffodil Smart City</title>
-    <link rel="stylesheet" href="../../assets/css/style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Level | Daffodil Smart City</title>
+  <link rel="stylesheet" href="../../assets/css/style.css" />
 </head>
+
 <body class="building-page">
-    <button class="burger-btn" id="burgerBtn" type="button" aria-label="Open menu" aria-expanded="false">
-        ☰
-    </button>
+  <button class="burger-btn" id="burgerBtn" type="button" aria-label="Open menu" aria-expanded="false">
+    ☰
+  </button>
 
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-mark small">⚡</div>
-            <div>
-                <h2>Level</h2>
-                <span>Room Manager</span>
-            </div>
-        </div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark small">⚡</div>
 
-        <nav class="side-nav">
-            <a href="../../../../">Daffodil Smart City</a>
-            <a href="../../../../../electricity_frontend/dashboard.html">Admin Dashboard</a>
-            <a href="../../">Building Home</a>
-            <a href="./" class="active">Level Home</a>
-        </nav>
-    </aside>
-
-    <main class="main-content">
-        <div class="content-shell">
-            <header class="topbar">
-                <div class="topbar-title">
-                    <p class="eyebrow">Level Home</p>
-                    <h1 id="pageTitle">Level</h1>
-                    <p class="muted" id="pageSubtitle">Add and manage rooms under this level.</p>
-                </div>
-            </header>
-
-            <div id="pageAlert" class="alert hidden"></div>
-
-            <section class="center-action-wrap">
-                <button class="add-device-btn center-add-btn" id="addRoomBtn" type="button">
-                    <span>+</span>
-                    Add Rooms
-                </button>
-            </section>
-
-            <section class="devices-panel">
-                <div class="section-head">
-                    <div>
-                        <p class="eyebrow">Room Cards</p>
-                        <h2>Added Rooms</h2>
-                    </div>
-                </div>
-
-                <div class="device-grid" id="roomGrid">
-                    <!-- Room cards will load here -->
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <div class="modal-overlay hidden" id="roomModal">
-        <div class="modal-card">
-            <div class="modal-head">
-                <div>
-                    <p class="eyebrow">Connect Room</p>
-                    <h2>Add Room Homepage</h2>
-                </div>
-
-                <button class="modal-close-btn" id="modalCloseBtn" type="button" aria-label="Close modal">
-                    ×
-                </button>
-            </div>
-
-            <form
-                id="roomForm"
-                class="building-form"
-                autocomplete="off"
-                autocorrect="off"
-                autocapitalize="off"
-                spellcheck="false"
-            >
-                <div class="form-group">
-                    <label for="roomName">Room Name</label>
-                    <input
-                        type="text"
-                        id="roomName"
-                        name="room_name_manual_2026"
-                        placeholder="Example: Room 101"
-                        autocomplete="off"
-                        autocorrect="off"
-                        autocapitalize="off"
-                        spellcheck="false"
-                        required
-                    />
-                </div>
-
-                <div class="form-group">
-                    <label for="roomVerificationId">Verification ID</label>
-                    <input
-                        type="text"
-                        id="roomVerificationId"
-                        name="room_verification_id_manual_2026"
-                        placeholder="Example: room_101"
-                        autocomplete="off"
-                        autocorrect="off"
-                        autocapitalize="off"
-                        spellcheck="false"
-                        required
-                    />
-                </div>
-
-                <div class="form-group">
-                    <label for="roomPageLink">Homepage Link</label>
-                    <input
-                        type="text"
-                        id="roomPageLink"
-                        name="room_homepage_link_manual_2026"
-                        placeholder="Paste room homepage link"
-                        autocomplete="off"
-                        autocorrect="off"
-                        autocapitalize="off"
-                        spellcheck="false"
-                        required
-                    />
-                </div>
-
-                <div class="modal-actions">
-                    <button class="btn-secondary" id="modalCancelBtn" type="button">
-                        Cancel
-                    </button>
-
-                    <button class="add-device-btn" id="saveRoomBtn" type="submit">
-                        Save Room
-                    </button>
-                </div>
-            </form>
-        </div>
+      <div>
+        <h2>Level</h2>
+        <span>Room Manager</span>
+      </div>
     </div>
 
-    <script src="../../assets/js/room-app.js?v=room-manager-final-1"></script>
+    <nav class="side-nav">
+      <a href="../../../../">Daffodil Smart City</a>
+      <a href="../../../../../electricity_frontend/dashboard.html">Admin Dashboard</a>
+      <a href="../../">Building Home</a>
+      <a href="./" class="active">Level Home</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="content-shell">
+      <header class="topbar">
+        <div class="topbar-title">
+          <p class="eyebrow">Level Home</p>
+          <h1 id="pageTitle">Level</h1>
+          <p class="muted" id="pageSubtitle">Add and manage rooms under this level.</p>
+        </div>
+      </header>
+
+      <div id="pageAlert" class="alert hidden"></div>
+
+      <section class="center-action-wrap">
+        <button class="add-device-btn center-add-btn" id="addRoomBtn" type="button">
+          <span>+</span>
+          Add Rooms
+        </button>
+      </section>
+
+      <section class="devices-panel">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Room Cards</p>
+            <h2>Added Rooms</h2>
+          </div>
+        </div>
+
+        <div class="device-grid" id="roomGrid">
+          <!-- Room cards will load here -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="modal-overlay hidden" id="roomModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">Connect Room</p>
+          <h2>Add Room Homepage</h2>
+        </div>
+
+        <button class="modal-close-btn" id="modalCloseBtn" type="button" aria-label="Close modal">
+          ×
+        </button>
+      </div>
+
+      <form
+        id="roomForm"
+        class="building-form"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+      >
+        <div class="form-group suggest-wrap">
+          <label for="roomNo">Room No</label>
+          <input
+            type="text"
+            id="roomNo"
+            name="room_no_manual_2026"
+            placeholder="Select or type room no"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            required
+          />
+          <div class="black-suggestion-box hidden" id="roomNoSuggestions"></div>
+        </div>
+
+        <div class="form-group suggest-wrap">
+          <label for="roomVerificationId">Verification ID</label>
+          <input
+            type="text"
+            id="roomVerificationId"
+            name="room_verification_id_manual_2026"
+            placeholder="Enter verification ID manually"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            required
+          />
+          <div class="black-suggestion-box hidden" id="roomVerificationSuggestions"></div>
+        </div>
+
+        <div class="form-group suggest-wrap">
+          <label for="roomPageLink">Homepage Link</label>
+          <input
+            type="text"
+            id="roomPageLink"
+            name="room_homepage_link_manual_2026"
+            placeholder="Paste homepage link manually"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            required
+          />
+          <div class="black-suggestion-box hidden" id="roomPageLinkSuggestions"></div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-secondary" id="modalCancelBtn" type="button">
+            Cancel
+          </button>
+
+          <button class="add-device-btn" id="saveRoomBtn" type="submit">
+            Save Room
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../../assets/js/room-app.js?v=room-black-suggestion-1"></script>
 </body>
 </html>
