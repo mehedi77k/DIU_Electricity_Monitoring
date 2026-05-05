@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daffodil Smart City | Electricity Monitor</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body class="campus-page">
+
+    <button id="burgerBtn" class="burger-btn" type="button" aria-label="Toggle sidebar" aria-expanded="false">
+        ☰
+    </button>
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark small">⚡</div>
+            <div>
+                <h2>Smart City</h2>
+                <span>Electricity Monitor</span>
+            </div>
+        </div>
+
+        <nav class="side-nav">
+            <a href="index.html" class="active">Daffodil Smart City</a>
+            <a href="http://localhost/electricity_frontend/dashboard.html">Admin Dashboard</a>
+            <a href="http://localhost/electricity_frontend/">Admin Login</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="content-shell">
+
+            <header class="topbar">
+                <div class="topbar-title">
+                    <p class="eyebrow">Campus Home</p>
+                    <h1>Daffodil Smart City</h1>
+                    <p class="muted">Manage devices, campus locations, and electricity readings.</p>
+                </div>
+            </header>
+
+            <div class="center-action-wrap">
+                <button id="viewDevicesBtn" class="add-device-btn center-add-btn" type="button">
+                    <span>+</span> View Devices
+                </button>
+            </div>
+
+            <div id="pageAlert" class="alert hidden"></div>
+
+            <section id="deviceSection" class="devices-panel">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Device Cards</p>
+                        <h2>Added Devices</h2>
+                    </div>
+                </div>
+
+                <div id="deviceGrid" class="device-grid"></div>
+            </section>
+
+        </div>
+    </main>
+
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
