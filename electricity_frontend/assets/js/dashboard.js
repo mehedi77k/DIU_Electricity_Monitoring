@@ -1,121 +1,113 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const adminName = document.getElementById('adminName');
-    const logoutBtn = document.getElementById('logoutBtn');
+document.addEventListener("DOMContentLoaded", () => {
+    const adminName = document.getElementById("adminName");
+    const logoutBtn = document.getElementById("logoutBtn");
 
-    const burgerBtn = document.getElementById('burgerBtn');
-    const sidebar = document.getElementById('sidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const burgerBtn = document.getElementById("burgerBtn");
+    const sidebar = document.getElementById("sidebar");
+    const sidebarOverlay = document.getElementById("sidebarOverlay");
 
-    const openModalBtn = document.getElementById('openModalBtn');
+    const openModalBtn = document.getElementById("openModalBtn");
+    const modal = document.getElementById("locationModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const cancelModalBtn = document.getElementById("cancelModalBtn");
 
-    const modal = document.getElementById('deviceModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const cancelModalBtn = document.getElementById('cancelModalBtn');
-    const deviceForm = document.getElementById('deviceForm');
+    const locationForm = document.getElementById("locationForm");
+    const saveLocationBtn = document.getElementById("saveLocationBtn");
 
-    const campusSelect = document.getElementById('campusSelect');
-    const buildingSelect = document.getElementById('buildingSelect');
-
-    const dashboardAlert = document.getElementById('dashboardAlert');
-    const formAlert = document.getElementById('formAlert');
-    const saveDeviceBtn = document.getElementById('saveDeviceBtn');
-
-    const deviceGrid = document.getElementById('deviceGrid');
+    const locationGrid = document.getElementById("locationGrid");
+    const dashboardAlert = document.getElementById("dashboardAlert");
+    const formAlert = document.getElementById("formAlert");
 
     init();
 
     async function init() {
         await requireLogin();
         bindEvents();
-        await loadCampuses();
-        await loadDevices();
+        await loadLocations();
     }
 
     async function requireLogin() {
         try {
-            const response = await apiFetch('/auth/me.php');
+            const response = await apiFetch("/auth/me.php");
             const admin = response.data.admin;
-            adminName.textContent = admin.name || 'Admin';
+
+            adminName.textContent = admin.name || "Admin";
         } catch (error) {
-            window.location.href = 'index.html';
+            window.location.href = "index.html";
         }
     }
 
     function bindEvents() {
         if (burgerBtn && sidebar && sidebarOverlay) {
-            burgerBtn.addEventListener('click', toggleSidebar);
-            sidebarOverlay.addEventListener('click', closeSidebar);
+            burgerBtn.addEventListener("click", toggleSidebar);
+            sidebarOverlay.addEventListener("click", closeSidebar);
         }
 
         if (openModalBtn) {
-            openModalBtn.addEventListener('click', () => {
+            openModalBtn.addEventListener("click", () => {
                 closeSidebar();
                 openModal();
             });
         }
 
         if (closeModalBtn) {
-            closeModalBtn.addEventListener('click', closeModal);
+            closeModalBtn.addEventListener("click", closeModal);
         }
 
         if (cancelModalBtn) {
-            cancelModalBtn.addEventListener('click', closeModal);
+            cancelModalBtn.addEventListener("click", closeModal);
         }
 
         if (modal) {
-            modal.addEventListener('click', (event) => {
+            modal.addEventListener("click", (event) => {
                 if (event.target === modal) {
                     closeModal();
                 }
             });
         }
 
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
                 closeModal();
                 closeSidebar();
             }
         });
 
         if (logoutBtn) {
-            logoutBtn.addEventListener('click', logout);
+            logoutBtn.addEventListener("click", logout);
         }
 
-        if (campusSelect) {
-            campusSelect.addEventListener('change', () => loadBuildings(campusSelect.value));
-        }
-
-        if (deviceForm) {
-            deviceForm.addEventListener('submit', submitDeviceForm);
+        if (locationForm) {
+            locationForm.addEventListener("submit", submitLocationForm);
         }
     }
 
     function openSidebar() {
         if (!sidebar || !sidebarOverlay || !burgerBtn) return;
 
-        sidebar.classList.add('open');
-        sidebarOverlay.classList.add('show');
-        document.body.classList.add('sidebar-open');
+        sidebar.classList.add("open");
+        sidebarOverlay.classList.add("show");
+        document.body.classList.add("sidebar-open");
 
-        burgerBtn.textContent = '×';
-        burgerBtn.setAttribute('aria-expanded', 'true');
+        burgerBtn.textContent = "×";
+        burgerBtn.setAttribute("aria-expanded", "true");
     }
 
     function closeSidebar() {
         if (!sidebar || !sidebarOverlay || !burgerBtn) return;
 
-        sidebar.classList.remove('open');
-        sidebarOverlay.classList.remove('show');
-        document.body.classList.remove('sidebar-open');
+        sidebar.classList.remove("open");
+        sidebarOverlay.classList.remove("show");
+        document.body.classList.remove("sidebar-open");
 
-        burgerBtn.textContent = '☰';
-        burgerBtn.setAttribute('aria-expanded', 'false');
+        burgerBtn.textContent = "☰";
+        burgerBtn.setAttribute("aria-expanded", "false");
     }
 
     function toggleSidebar() {
         if (!sidebar) return;
 
-        if (sidebar.classList.contains('open')) {
+        if (sidebar.classList.contains("open")) {
             closeSidebar();
         } else {
             openSidebar();
@@ -127,256 +119,178 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!modal) return;
 
-        modal.classList.add('show');
-        modal.setAttribute('aria-hidden', 'false');
+        modal.classList.add("show");
+        modal.setAttribute("aria-hidden", "false");
     }
 
     function closeModal() {
         if (!modal) return;
 
-        modal.classList.remove('show');
-        modal.setAttribute('aria-hidden', 'true');
+        modal.classList.remove("show");
+        modal.setAttribute("aria-hidden", "true");
         hideAlert(formAlert);
     }
 
     async function logout() {
         try {
-            await apiFetch('/auth/logout.php', {
-                method: 'POST'
+            await apiFetch("/auth/logout.php", {
+                method: "POST"
             });
         } finally {
-            window.location.href = 'index.html';
+            window.location.href = "index.html";
         }
     }
 
-    async function loadCampuses() {
+    async function loadLocations() {
         try {
-            const response = await apiFetch('/campuses/list.php');
-            const campuses = response.data.campuses || [];
+            const response = await apiFetch("/locations/list.php");
+            const locations = response.data.locations || [];
 
-            campusSelect.innerHTML = '<option value="">Select Campus</option>';
-
-            campuses.forEach(campus => {
-                const option = document.createElement('option');
-                option.value = campus.id;
-                option.textContent = campus.campus_name;
-                campusSelect.appendChild(option);
-            });
+            renderLocations(locations);
+            hideAlert(dashboardAlert);
         } catch (error) {
-            campusSelect.innerHTML = '<option value="">Failed to load campuses</option>';
-            showAlert(dashboardAlert, error.message || 'Failed to load campuses.');
+            renderLocations([]);
+            showAlert(dashboardAlert, error.message || "Failed to load location homepages.");
         }
     }
 
-    async function loadBuildings(campusId) {
-        buildingSelect.innerHTML = '<option value="">Loading...</option>';
+    function renderLocations(locations) {
+        if (!locationGrid) return;
 
-        if (!campusId) {
-            buildingSelect.innerHTML = '<option value="">Select campus first</option>';
-            return;
-        }
+        locationGrid.innerHTML = "";
 
-        try {
-            const response = await apiFetch(`/buildings/list.php?campus_id=${encodeURIComponent(campusId)}`);
-            const buildings = response.data.buildings || [];
-
-            buildingSelect.innerHTML = '<option value="">Select Building</option>';
-
-            if (!buildings.length) {
-                buildingSelect.innerHTML = '<option value="">No building found</option>';
-                return;
-            }
-
-            buildings.forEach(building => {
-                const option = document.createElement('option');
-                option.value = building.id;
-                option.textContent = building.building_name;
-                buildingSelect.appendChild(option);
-            });
-        } catch (error) {
-            buildingSelect.innerHTML = '<option value="">Failed to load buildings</option>';
-            showAlert(formAlert, error.message || 'Failed to load buildings.');
-        }
-    }
-
-    async function loadDevices() {
-        try {
-            const response = await apiFetch('/devices/list.php');
-            const devices = response.data.devices || [];
-
-            renderDevices(devices);
-        } catch (error) {
-            showAlert(dashboardAlert, error.message || 'Failed to load devices.');
-            renderDevices([]);
-        }
-    }
-
-    function renderDevices(devices) {
-        if (!deviceGrid) return;
-
-        deviceGrid.innerHTML = '';
-
-        if (!devices.length) {
-            deviceGrid.innerHTML = `
+        if (!locations.length) {
+            locationGrid.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">⚡</div>
-                    <h3>No device added yet</h3>
-                    <p>Click “Add Device” to create your first device card.</p>
+                    <h3>No location added yet</h3>
+                    <p>Click “Add Location” to create your first location homepage card.</p>
                 </div>
             `;
             return;
         }
 
-        devices.forEach(device => {
-            const card = document.createElement('article');
-            card.className = 'device-card';
+        locations.forEach((location) => {
+            const card = document.createElement("article");
+            card.className = "location-card";
 
             card.innerHTML = `
-                <div class="device-card-head">
+                <div class="location-card-head">
                     <div>
-                        <h3>${escapeHtml(device.device_name)}</h3>
-                        <p>${escapeHtml(device.device_type)} · ${escapeHtml(device.building_name || 'No building')}</p>
+                        <h3>${escapeHtml(location.location_name)}</h3>
+                        <p>Verification ID: ${escapeHtml(location.verification_table)}</p>
                     </div>
 
-                    <span class="status-badge status-${escapeHtml(device.status)}">
-                        ${escapeHtml(device.status)}
-                    </span>
+                    <span class="status-badge status-online">Active</span>
                 </div>
 
-                <div class="reading-grid">
-                    <div class="reading-box">
-                        <span>Average Voltage</span>
-                        <strong>${formatNumber(device.average_voltage)} V</strong>
-                    </div>
-
-                    <div class="reading-box">
-                        <span>Average Watt</span>
-                        <strong>${formatNumber(device.average_watt)} W</strong>
-                    </div>
-
-                    <div class="reading-box">
-                        <span>Average Ampere</span>
-                        <strong>${formatNumber(device.average_ampere)} A</strong>
-                    </div>
+                <div class="location-meta">
+                    <div><strong>Homepage:</strong> ${escapeHtml(location.page_link)}</div>
+                    <div><strong>Created:</strong> ${escapeHtml(location.created_at || "N/A")}</div>
                 </div>
 
-                <div class="card-meta">
-                    <div><strong>Campus:</strong> ${escapeHtml(device.campus_name || 'N/A')}</div>
-                    <div><strong>Verification ID:</strong> ${escapeHtml(device.verification_id)}</div>
-                    <div><strong>Total Readings:</strong> ${escapeHtml(device.total_readings)}</div>
-                    <div><strong>Last Recorded:</strong> ${escapeHtml(device.last_recorded_at || 'No reading yet')}</div>
-                </div>
+                <div class="location-actions">
+                    <a class="open-location-btn" href="${escapeHtml(location.page_link)}">
+                        Open Homepage
+                    </a>
 
-                <div class="card-actions">
                     <button 
                         type="button" 
-                        class="remove-device-btn" 
-                        data-device-id="${device.id}">
-                        Remove Device
+                        class="remove-location-btn"
+                        data-location-id="${location.id}">
+                        Remove
                     </button>
                 </div>
             `;
 
-            deviceGrid.appendChild(card);
+            card.addEventListener("click", (event) => {
+                const clickedAction = event.target.closest("a, button");
+
+                if (clickedAction) return;
+
+                window.location.href = location.page_link;
+            });
+
+            locationGrid.appendChild(card);
         });
 
-        const removeButtons = deviceGrid.querySelectorAll('.remove-device-btn');
+        locationGrid.querySelectorAll(".remove-location-btn").forEach((button) => {
+            button.addEventListener("click", (event) => {
+                event.stopPropagation();
 
-        removeButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const deviceId = button.dataset.deviceId;
-                removeDevice(deviceId);
+                const locationId = Number(button.dataset.locationId);
+                removeLocation(locationId);
             });
         });
     }
 
-    async function submitDeviceForm(event) {
+    async function submitLocationForm(event) {
         event.preventDefault();
+
         hideAlert(formAlert);
         hideAlert(dashboardAlert);
 
-        const payload = {
-            device_name: document.getElementById('deviceName').value.trim(),
-            device_type: document.getElementById('deviceType').value,
-            campus_id: Number(campusSelect.value),
-            building_id: Number(buildingSelect.value),
-            verification_id: document.getElementById('verificationId').value.trim().toLowerCase(),
-            data_link: document.getElementById('dataLink').value.trim(),
-            status: 'online'
-        };
+        const locationName = document.getElementById("locationName").value.trim();
+        const verificationTable = document.getElementById("verificationTable").value.trim().toLowerCase();
+        const pageLink = document.getElementById("pageLink").value.trim();
 
-        if (
-            !payload.device_name ||
-            !payload.device_type ||
-            !payload.campus_id ||
-            !payload.building_id ||
-            !payload.verification_id ||
-            !payload.data_link
-        ) {
-            showAlert(formAlert, 'All fields are required.');
+        if (!locationName || !verificationTable || !pageLink) {
+            showAlert(formAlert, "All fields are required.");
             return;
         }
 
-        if (!/^[a-z0-9_]{3,100}$/.test(payload.verification_id)) {
-            showAlert(formAlert, 'Verification ID must use lowercase letters, numbers, and underscore only.');
+        if (!/^[a-z0-9_]{2,100}$/.test(verificationTable)) {
+            showAlert(formAlert, "Verification ID must use lowercase letters, numbers and underscore only.");
             return;
         }
 
-        saveDeviceBtn.disabled = true;
-        saveDeviceBtn.textContent = 'Saving...';
+        saveLocationBtn.disabled = true;
+        saveLocationBtn.textContent = "Saving...";
 
         try {
-            await apiFetch('/devices/create.php', {
-                method: 'POST',
-                body: JSON.stringify(payload)
+            await apiFetch("/locations/create.php", {
+                method: "POST",
+                body: JSON.stringify({
+                    location_name: locationName,
+                    verification_table: verificationTable,
+                    page_link: pageLink
+                })
             });
 
-            deviceForm.reset();
-            buildingSelect.innerHTML = '<option value="">Select campus first</option>';
-
+            locationForm.reset();
             closeModal();
 
-            showAlert(
-                dashboardAlert,
-                'Device added successfully. Device card created automatically.',
-                'success'
-            );
+            showAlert(dashboardAlert, "Location homepage added successfully.", "success");
 
-            await loadDevices();
+            await loadLocations();
         } catch (error) {
-            showAlert(formAlert, error.message || 'Failed to add device.');
+            showAlert(formAlert, error.message || "Failed to create location homepage.");
         } finally {
-            saveDeviceBtn.disabled = false;
-            saveDeviceBtn.textContent = 'Save Device';
+            saveLocationBtn.disabled = false;
+            saveLocationBtn.textContent = "Save Location";
         }
     }
 
-    async function removeDevice(deviceId) {
-        const confirmed = confirm('Are you sure you want to remove this device?');
+    async function removeLocation(locationId) {
+        const confirmed = confirm("Remove this location homepage card?");
 
-        if (!confirmed) {
-            return;
-        }
+        if (!confirmed) return;
 
         hideAlert(dashboardAlert);
 
         try {
-            await apiFetch('/devices/delete.php', {
-                method: 'POST',
+            await apiFetch("/locations/delete.php", {
+                method: "POST",
                 body: JSON.stringify({
-                    device_id: Number(deviceId)
+                    location_id: locationId
                 })
             });
 
-            showAlert(
-                dashboardAlert,
-                'Device removed successfully.',
-                'success'
-            );
+            showAlert(dashboardAlert, "Location homepage removed successfully.", "success");
 
-            await loadDevices();
+            await loadLocations();
         } catch (error) {
-            showAlert(dashboardAlert, error.message || 'Failed to remove device.');
+            showAlert(dashboardAlert, error.message || "Failed to remove location homepage.");
         }
     }
 });

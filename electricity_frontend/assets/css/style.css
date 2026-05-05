@@ -84,7 +84,7 @@ button {
     font-size: 24px;
 }
 
-/* Auth page */
+/* Auth */
 
 .auth-page {
     min-height: 100vh;
@@ -198,7 +198,7 @@ select:focus {
 
 .btn-primary,
 .btn-light,
-.add-device-btn,
+.add-location-btn,
 .logout-btn,
 .close-btn,
 .burger-btn {
@@ -208,7 +208,7 @@ select:focus {
 }
 
 .btn-primary,
-.add-device-btn,
+.add-location-btn,
 .burger-btn {
     color: #fff;
     background: linear-gradient(135deg, var(--primary), #3e80bd);
@@ -220,10 +220,6 @@ select:focus {
     padding: 0 20px;
 }
 
-.btn-primary.alt-btn {
-    background: linear-gradient(135deg, #2a6db0, #5a98d6);
-}
-
 .btn-light {
     min-height: 48px;
     padding: 0 18px;
@@ -231,7 +227,7 @@ select:focus {
     background: #eef4fb;
 }
 
-.add-device-btn {
+.add-location-btn {
     min-height: 54px;
     padding: 0 28px;
     display: inline-flex;
@@ -241,7 +237,7 @@ select:focus {
     white-space: nowrap;
 }
 
-.add-device-btn span {
+.add-location-btn span {
     width: 26px;
     height: 26px;
     display: grid;
@@ -403,10 +399,6 @@ select:focus {
     margin-bottom: 28px;
 }
 
-.topbar-title {
-    text-align: left;
-}
-
 .topbar h1 {
     margin: 0;
     font-size: clamp(28px, 4vw, 42px);
@@ -427,9 +419,9 @@ select:focus {
     font-size: 17px;
 }
 
-/* Device cards */
+/* Location Cards */
 
-.devices-panel {
+.locations-panel {
     width: min(100%, 1200px);
     margin: 30px auto 0;
     padding: 24px;
@@ -451,35 +443,84 @@ select:focus {
     margin: 0;
 }
 
-.device-grid {
+.location-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 18px;
 }
 
-.device-card {
+.location-card {
     position: relative;
     padding: 22px;
     border-radius: 22px;
     border: 1px solid var(--border);
     background: var(--panel);
     box-shadow: 0 12px 35px rgba(28, 55, 90, 0.08);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.device-card-head {
+.location-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 42px rgba(28, 55, 90, 0.14);
+}
+
+.location-card-head {
     display: flex;
     justify-content: space-between;
     gap: 16px;
     margin-bottom: 18px;
 }
 
-.device-card h3 {
+.location-card h3 {
     margin: 0 0 6px;
+    font-size: 22px;
 }
 
-.device-card p {
+.location-card p {
     margin: 0;
     color: var(--muted);
+}
+
+.location-meta {
+    display: grid;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.location-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 22px;
+}
+
+.open-location-btn,
+.remove-location-btn {
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 14px;
+    font-weight: 800;
+}
+
+.open-location-btn {
+    display: inline-flex;
+    align-items: center;
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary), #3e80bd);
+    box-shadow: 0 10px 24px rgba(31, 95, 153, 0.18);
+}
+
+.remove-location-btn {
+    border: 1px solid rgba(201, 60, 60, 0.25);
+    background: #fff0f0;
+    color: var(--danger);
+}
+
+.remove-location-btn:hover {
+    background: #ffe4e4;
 }
 
 .status-badge {
@@ -496,71 +537,7 @@ select:focus {
     color: var(--green);
 }
 
-.status-offline {
-    background: #fff0f0;
-    color: var(--danger);
-}
-
-.status-not_installed {
-    background: #fff7e8;
-    color: var(--warning);
-}
-
-.reading-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin: 18px 0;
-}
-
-.reading-box {
-    padding: 14px 10px;
-    border-radius: 16px;
-    background: var(--panel-soft);
-    text-align: center;
-}
-
-.reading-box span {
-    display: block;
-    margin-bottom: 6px;
-    color: var(--muted);
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.reading-box strong {
-    font-size: 18px;
-}
-
-.card-meta {
-    display: grid;
-    gap: 8px;
-    color: var(--muted);
-    font-size: 14px;
-}
-
-.card-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 22px;
-}
-
-.remove-device-btn {
-    min-height: 42px;
-    padding: 0 18px;
-    border: 1px solid rgba(201, 60, 60, 0.25);
-    border-radius: 14px;
-    background: #fff0f0;
-    color: var(--danger);
-    font-weight: 800;
-    cursor: pointer;
-    transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.remove-device-btn:hover {
-    background: #ffe4e4;
-    transform: translateY(-1px);
-}
+/* Empty */
 
 .empty-state {
     width: 100%;
@@ -645,6 +622,10 @@ select:focus {
     gap: 0 16px;
 }
 
+.single-form-grid {
+    grid-template-columns: 1fr;
+}
+
 .modal-actions {
     display: flex;
     justify-content: flex-end;
@@ -687,25 +668,25 @@ select:focus {
     }
 
     .form-grid,
-    .reading-grid {
+    .single-form-grid {
         grid-template-columns: 1fr;
     }
 
-    .devices-panel,
+    .locations-panel,
     .modal-card,
     .auth-card {
         border-radius: 20px;
     }
 
-    .device-card-head {
+    .location-card-head,
+    .location-actions {
         flex-direction: column;
+        align-items: stretch;
     }
 
-    .card-actions {
-        justify-content: stretch;
-    }
-
-    .remove-device-btn {
+    .open-location-btn,
+    .remove-location-btn {
+        justify-content: center;
         width: 100%;
     }
 }

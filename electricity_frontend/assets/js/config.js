@@ -1,56 +1,54 @@
-const API_BASE = '/electricity_api';
+const API_BASE = `${window.location.origin}/diu_electricity_monitoring/electricity_api`;
+const API_BASE_URL = API_BASE;
 
 async function apiFetch(endpoint, options = {}) {
-    const fetchOptions = {
-        credentials: 'include',
-        ...options,
+    const response = await fetch(`${API_BASE}${endpoint}`, {
+        method: options.method || "GET",
+        credentials: "include",
         headers: {
-            'Accept': 'application/json',
-            ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+            "Accept": "application/json",
+            ...(options.body ? { "Content-Type": "application/json" } : {}),
             ...(options.headers || {})
-        }
-    };
+        },
+        body: options.body || undefined
+    });
 
-    const response = await fetch(`${API_BASE}${endpoint}`, fetchOptions);
     let payload = null;
 
     try {
         payload = await response.json();
     } catch (error) {
-        payload = {
-            success: false,
-            message: 'Invalid JSON response from API.',
-            data: {}
-        };
+        throw new Error("Invalid JSON response from API.");
     }
 
-    if (!response.ok) {
-        const message = payload && payload.message ? payload.message : 'API request failed.';
-        throw new Error(message);
+    if (!response.ok || !payload.status) {
+        throw new Error(payload.message || "API request failed.");
     }
 
     return payload;
 }
 
-function showAlert(element, message, type = 'danger') {
+function showAlert(element, message, type = "danger") {
     if (!element) return;
+
     element.textContent = message;
     element.className = `alert ${type}`;
 }
 
 function hideAlert(element) {
     if (!element) return;
-    element.textContent = '';
-    element.className = 'alert hidden';
+
+    element.textContent = "";
+    element.className = "alert hidden";
 }
 
 function escapeHtml(value) {
-    return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 function formatNumber(value, decimals = 2) {
