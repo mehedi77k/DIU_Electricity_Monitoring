@@ -21,8 +21,20 @@ async function apiFetch(endpoint, options = {}) {
         throw new Error("Invalid JSON response from API.");
     }
 
-    if (!response.ok || !payload.status) {
-        throw new Error(payload.message || "API request failed.");
+    /*
+        Your API may return either:
+        { success: true, message: "...", data: {...} }
+        or:
+        { status: true, message: "...", data: {...} }
+
+        This supports both formats.
+    */
+    const isSuccess =
+        payload &&
+        (payload.success === true || payload.status === true);
+
+    if (!response.ok || !isSuccess) {
+        throw new Error(payload?.message || "API request failed.");
     }
 
     return payload;

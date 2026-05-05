@@ -178,15 +178,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="location-card-head">
                     <div>
                         <h3>${escapeHtml(location.location_name)}</h3>
-                        <p>Verification ID: ${escapeHtml(location.verification_table)}</p>
                     </div>
 
                     <span class="status-badge status-online">Active</span>
-                </div>
-
-                <div class="location-meta">
-                    <div><strong>Homepage:</strong> ${escapeHtml(location.page_link)}</div>
-                    <div><strong>Created:</strong> ${escapeHtml(location.created_at || "N/A")}</div>
                 </div>
 
                 <div class="location-actions">
