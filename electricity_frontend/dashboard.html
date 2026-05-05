@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Electricity DemoWeb</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body class="dashboard-page">
+
+    <button id="burgerBtn" class="burger-btn" type="button" aria-label="Toggle sidebar" aria-expanded="false">
+        ☰
+    </button>
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark small">⚡</div>
+            <div>
+                <h2>ElectroAdmin</h2>
+                <span>Smart Monitoring</span>
+            </div>
+        </div>
+
+        <nav class="side-nav">
+            <a href="dashboard.html" class="active">Dashboard</a>
+        </nav>
+
+        <button id="logoutBtn" class="logout-btn" type="button">Logout</button>
+    </aside>
+
+    <main class="main-content">
+        <div class="content-shell">
+
+            <header class="topbar">
+                <div class="topbar-title">
+                    <p class="eyebrow">Admin Home</p>
+                    <h1>Welcome, <span id="adminName">Admin</span></h1>
+                    <p class="muted">Manage devices, campus locations, and electricity readings.</p>
+                </div>
+            </header>
+
+            <div class="center-action-wrap">
+                <button id="openModalBtn" class="add-device-btn center-add-btn" type="button">
+                    <span>+</span> Add Device
+                </button>
+            </div>
+
+            <div id="dashboardAlert" class="alert hidden"></div>
+
+            <section id="deviceSection" class="devices-panel">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Device Cards</p>
+                        <h2>Added Devices</h2>
+                    </div>
+                </div>
+
+                <div id="deviceGrid" class="device-grid"></div>
+            </section>
+
+        </div>
+    </main>
+
+    <div id="deviceModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <div class="modal-head">
+                <div>
+                    <p class="eyebrow">New Device</p>
+                    <h2>Add Device</h2>
+                </div>
+
+                <button id="closeModalBtn" class="close-btn" type="button">×</button>
+            </div>
+
+            <form id="deviceForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="deviceName">Device Name</label>
+                        <input id="deviceName" type="text" placeholder="Knowledge Tower Main Meter" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deviceType">Device Type</label>
+                        <select id="deviceType" required>
+                            <option value="">Select Type</option>
+                            <option>Smart Meter</option>
+                            <option>Energy Analyzer</option>
+                            <option>Voltage Sensor</option>
+                            <option>Current Sensor</option>
+                            <option>Solar Meter</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="campusSelect">Location / Campus</label>
+                        <select id="campusSelect" required>
+                            <option value="">Loading campuses...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="buildingSelect">Building</label>
+                        <select id="buildingSelect" required>
+                            <option value="">Select campus first</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="verificationId">Verification ID</label>
+                        <input id="verificationId" type="text" placeholder="scholars_home_meter_01" required>
+                        <small>Allowed: lowercase letters, numbers, underscore.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dataLink">Data Link</label>
+                        <input id="dataLink" type="url" placeholder="http://localhost/device/scholars_home_meter_01" required>
+                    </div>
+                </div>
+
+                <div id="formAlert" class="alert hidden"></div>
+
+                <div class="modal-actions">
+                    <button type="button" id="cancelModalBtn" class="btn-light">Cancel</button>
+                    <button id="saveDeviceBtn" type="submit" class="btn-primary">Save Device</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/dashboard.js"></script>
+</body>
+</html>

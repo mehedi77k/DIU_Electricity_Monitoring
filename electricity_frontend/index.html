@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Auth | Electricity DemoWeb</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="auth-page">
+    <main class="auth-shell">
+        <section class="auth-card">
+            <div class="brand-row">
+                <div class="brand-mark">⚡</div>
+                <div>
+                    <h1 id="authTitle">Admin Login</h1>
+                    <p>Electricity Monitoring Dashboard</p>
+                </div>
+            </div>
+
+            <div id="authAlert" class="alert hidden"></div>
+
+            <form id="loginForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input id="loginEmail" type="email" placeholder="admin@gmail.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input id="loginPassword" type="password" placeholder="admin123" required>
+                </div>
+
+                <div class="auth-actions">
+                    <button id="loginButton" type="submit" class="btn-primary full-btn">Login</button>
+                    <button id="switchToSignup" type="button" class="btn-primary full-btn alt-btn">Sign Up</button>
+                </div>
+            </form>
+
+            <form id="signupForm" class="hidden" autocomplete="off">
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input id="signupName" type="text" placeholder="Example: Mehedi Hasan" minlength="2" maxlength="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input id="signupEmail" type="email" placeholder="newadmin@gmail.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input id="signupPassword" type="password" placeholder="Minimum 6 characters" minlength="6" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input id="confirmPassword" type="password" placeholder="Re-type password" minlength="6" required>
+                </div>
+
+                <div class="auth-actions">
+                    <button id="signupButton" type="submit" class="btn-primary full-btn">Create Admin Account</button>
+                    <button id="switchToLogin" type="button" class="btn-primary full-btn alt-btn">Back to Login</button>
+                </div>
+            </form>
+
+        </section>
+    </main>
+
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/auth.js"></script>
+</body>
+</html>
