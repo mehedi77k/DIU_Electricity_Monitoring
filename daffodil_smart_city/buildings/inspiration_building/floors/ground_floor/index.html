@@ -75,60 +75,38 @@
                 </button>
             </div>
 
-            <form
-                id="roomForm"
-                class="building-form"
-                autocomplete="off"
-                autocorrect="off"
-                autocapitalize="off"
-                spellcheck="false"
-            >
-                <div class="form-group suggest-wrap">
-                    <label for="roomNo">Room No</label>
+            <form id="roomForm" class="building-form" autocomplete="off">
+                <div class="form-group">
+                    <label for="roomName">Room Name</label>
                     <input
                         type="text"
-                        id="roomNo"
-                        name="room_no_manual_2026"
-                        placeholder="Select or type room no"
+                        id="roomName"
+                        placeholder="Example: Room 101"
                         autocomplete="off"
-                        autocorrect="off"
-                        autocapitalize="off"
-                        spellcheck="false"
                         required
                     />
-                    <div class="black-suggestion-box hidden" id="roomNoSuggestions"></div>
                 </div>
 
-                <div class="form-group suggest-wrap">
+                <div class="form-group">
                     <label for="roomVerificationId">Verification ID</label>
                     <input
                         type="text"
                         id="roomVerificationId"
-                        name="room_verification_id_manual_2026"
-                        placeholder="Enter verification ID manually"
+                        placeholder="Example: room_101"
                         autocomplete="off"
-                        autocorrect="off"
-                        autocapitalize="off"
-                        spellcheck="false"
                         required
                     />
-                    <div class="black-suggestion-box hidden" id="roomVerificationSuggestions"></div>
                 </div>
 
-                <div class="form-group suggest-wrap">
+                <div class="form-group">
                     <label for="roomPageLink">Homepage Link</label>
                     <input
                         type="text"
                         id="roomPageLink"
-                        name="room_homepage_link_manual_2026"
-                        placeholder="Paste homepage link manually"
+                        placeholder="Paste room homepage link"
                         autocomplete="off"
-                        autocorrect="off"
-                        autocapitalize="off"
-                        spellcheck="false"
                         required
                     />
-                    <div class="black-suggestion-box hidden" id="roomPageLinkSuggestions"></div>
                 </div>
 
                 <div class="modal-actions">
@@ -144,6 +122,6 @@
         </div>
     </div>
 
-    <script src="../../assets/js/room-app.js?v=room-black-suggestion-1"></script>
+    <script src="../../assets/js/room-app.js?v=room-manager-1"></script>
 </body>
 </html>
