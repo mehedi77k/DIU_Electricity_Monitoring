@@ -198,7 +198,7 @@ button {
 
 .side-nav a.active,
 .side-nav a:hover {
-    background: rgba(255,255,255,0.12);
+    background: rgba(255, 255, 255, 0.12);
     color: #fff;
 }
 
@@ -263,7 +263,7 @@ button {
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: rgba(255,255,255,0.18);
+    background: rgba(255, 255, 255, 0.18);
     font-size: 22px;
     line-height: 1;
 }
@@ -286,18 +286,18 @@ button {
 }
 
 .alert.success {
-    border-color: rgba(47,157,88,0.25);
+    border-color: rgba(47, 157, 88, 0.25);
     background: #ecf8f0;
     color: #246f40;
 }
 
 .alert.danger {
-    border-color: rgba(201,60,60,0.25);
+    border-color: rgba(201, 60, 60, 0.25);
     background: #fff0f0;
     color: #9b2c2c;
 }
 
-/* Device cards */
+/* Building / Device cards */
 
 .devices-panel {
     width: min(100%, 1200px);
@@ -428,6 +428,10 @@ button {
     font-size: 14px;
 }
 
+.card-meta div {
+    word-break: break-word;
+}
+
 .empty-state {
     width: 100%;
     padding: 42px 24px;
@@ -457,6 +461,239 @@ button {
 .empty-state p {
     margin: 0;
     color: var(--muted);
+}
+
+/* Modal */
+
+body.modal-open {
+    overflow: hidden;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(10, 24, 42, 0.48);
+    backdrop-filter: blur(6px);
+}
+
+.modal-card {
+    width: min(100%, 640px);
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 30px;
+    border-radius: 26px;
+    border: 1px solid var(--border-soft);
+    background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    box-shadow: var(--shadow-strong);
+}
+
+.modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.modal-head h2 {
+    margin: 0;
+    font-size: 30px;
+    line-height: 1.15;
+    letter-spacing: -0.04em;
+}
+
+.modal-close-btn {
+    flex: 0 0 auto;
+    width: 46px;
+    height: 46px;
+    border: 0;
+    border-radius: 16px;
+    background: #edf4fc;
+    color: var(--text);
+    font-size: 30px;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+}
+
+.building-form {
+    width: 100%;
+    display: grid;
+    gap: 18px;
+}
+
+.form-group {
+    width: 100%;
+    display: grid;
+    gap: 9px;
+}
+
+.form-group label {
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.form-group input {
+    width: 100%;
+    max-width: 100%;
+    height: 58px;
+    min-height: 58px;
+    padding: 0 17px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: #ffffff;
+    color: var(--text);
+    outline: none;
+    box-shadow: none;
+    display: block;
+}
+
+.form-group input:focus {
+    border-color: rgba(31, 95, 153, 0.55);
+    box-shadow: 0 0 0 3px rgba(31, 95, 153, 0.12);
+}
+
+.form-group input::placeholder {
+    color: #7b8797;
+}
+
+.building-form .form-group small {
+    display: none !important;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 14px;
+    margin-top: 12px;
+}
+
+.btn-secondary,
+.modal-actions .add-device-btn {
+    min-width: 112px;
+    min-height: 56px;
+    padding: 0 24px;
+    border-radius: 16px;
+}
+
+.btn-secondary {
+    border: 1px solid var(--border);
+    background: #ffffff;
+    color: var(--text);
+    font-weight: 800;
+}
+
+.modal-actions .add-device-btn {
+    box-shadow: none;
+}
+
+/* Building card actions */
+
+.building-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 22px;
+}
+
+.open-homepage-btn {
+    min-height: 44px;
+    padding: 0 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    background: linear-gradient(135deg, var(--primary), #3e80bd);
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 10px 22px rgba(31, 95, 153, 0.18);
+    text-decoration: none;
+}
+
+.open-homepage-btn:hover {
+    transform: translateY(-1px);
+}
+
+.remove-building-btn {
+    min-height: 44px;
+    padding: 0 20px;
+    border-radius: 13px;
+    border: 1px solid rgba(201, 60, 60, 0.28);
+    background: #fff3f3;
+    color: var(--danger);
+    font-weight: 800;
+}
+
+.remove-building-btn:hover {
+    background: #ffe9e9;
+}
+
+/* Custom black suggestion dropdown */
+
+.suggest-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.black-suggestion-box {
+    position: absolute;
+    top: calc(100% + 9px);
+    left: 16px;
+    z-index: 999;
+    width: max-content;
+    min-width: 230px;
+    max-width: min(520px, calc(100vw - 80px));
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 7px;
+    border-radius: 5px;
+    background: #17171b;
+    color: #ffffff;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.36);
+}
+
+.black-suggestion-box::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 24px;
+    width: 0;
+    height: 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-bottom: 9px solid #17171b;
+}
+
+.black-suggestion-item {
+    width: 100%;
+    max-width: 100%;
+    display: block;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: #ffffff;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.black-suggestion-item:hover,
+.black-suggestion-item:focus {
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
 }
 
 /* Responsive */
@@ -503,5 +740,61 @@ button {
 
     .device-card-head {
         flex-direction: column;
+    }
+
+    .modal-overlay {
+        padding: 16px;
+        align-items: flex-start;
+        padding-top: 36px;
+    }
+
+    .modal-card {
+        width: 100%;
+        padding: 22px;
+        border-radius: 22px;
+        max-height: calc(100vh - 72px);
+    }
+
+    .modal-head h2 {
+        font-size: 25px;
+    }
+
+    .modal-close-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        font-size: 27px;
+    }
+
+    .form-group input {
+        height: 54px;
+        min-height: 54px;
+        border-radius: 15px;
+    }
+
+    .modal-actions,
+    .building-card-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-secondary,
+    .modal-actions .add-device-btn,
+    .open-homepage-btn,
+    .remove-building-btn {
+        width: 100%;
+    }
+
+    .black-suggestion-box {
+        left: 10px;
+        right: 10px;
+        width: auto;
+        min-width: 0;
+        max-width: calc(100vw - 52px);
+    }
+
+    .black-suggestion-item {
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 }

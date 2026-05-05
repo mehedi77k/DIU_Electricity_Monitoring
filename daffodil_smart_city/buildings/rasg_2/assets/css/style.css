@@ -1,0 +1,258 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg: #eef6ff;
+  --panel: rgba(255, 255, 255, 0.78);
+  --card: #ffffff;
+  --text: #17223b;
+  --muted: #6b7c97;
+  --blue: #2f78b7;
+  --blue-dark: #21649d;
+  --border: #cce0f5;
+  --success-bg: #e9f8ef;
+  --success: #16a35b;
+  --danger-bg: #fff4f3;
+  --danger: #db3131;
+  --shadow: 0 24px 60px rgba(47, 120, 183, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at top left, #f7fbff 0, var(--bg) 42%, #eaf4ff 100%);
+  color: var(--text);
+}
+
+.page {
+  width: min(1320px, calc(100% - 56px));
+  margin: 0 auto;
+  padding: 46px 0 64px;
+}
+
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  gap: 120px;
+}
+
+.menu-btn {
+  width: 58px;
+  height: 58px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: #fff;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 18px 38px rgba(47, 120, 183, 0.32);
+}
+
+.eyebrow {
+  margin: 10px 0 20px;
+  color: #0f5e9f;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(42px, 5vw, 70px);
+  line-height: 1.04;
+  letter-spacing: -0.055em;
+}
+
+.lead {
+  margin: 24px 0 0;
+  color: var(--muted);
+  font-size: 19px;
+  letter-spacing: 0.01em;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin: 126px 0 126px;
+}
+
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 66px;
+  padding: 0 38px;
+  border: 0;
+  border-radius: 15px;
+  background: linear-gradient(135deg, var(--blue-dark), #3c86c4);
+  color: #fff;
+  font-size: 21px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 24px 55px rgba(47, 120, 183, 0.3);
+  cursor: pointer;
+}
+
+.primary-btn .plus {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.16);
+  font-size: 24px;
+}
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  padding: 30px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.62));
+  box-shadow: var(--shadow);
+}
+
+.panel h2 {
+  margin: 0 0 24px;
+  font-size: 30px;
+  letter-spacing: -0.04em;
+}
+
+.cards {
+  display: grid;
+  gap: 20px;
+}
+
+.device-card,
+.empty-card,
+.error-card {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--card);
+  padding: 28px;
+  box-shadow: 0 15px 34px rgba(18, 42, 80, 0.07);
+}
+
+.device-card {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(3, minmax(120px, 0.5fr));
+  align-items: center;
+  gap: 18px;
+}
+
+.device-title {
+  margin: 0 0 8px;
+  font-size: 25px;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+
+.device-meta {
+  margin: 0;
+  color: var(--muted);
+}
+
+.metric {
+  padding: 16px;
+  border-radius: 18px;
+  background: #f4f9ff;
+  text-align: center;
+}
+
+.metric strong {
+  display: block;
+  font-size: 24px;
+}
+
+.metric span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.empty-card,
+.error-card {
+  min-height: 210px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.empty-icon {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 18px;
+  border-radius: 24px;
+  background: #f4f8ff;
+  color: #ff7b2c;
+  font-size: 42px;
+}
+
+.empty-card h3,
+.error-card h3 {
+  margin: 0 0 8px;
+  font-size: 23px;
+}
+
+.empty-card p,
+.error-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--success-bg);
+  color: var(--success);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.back-link {
+  color: var(--blue-dark);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 900px) {
+  .page {
+    width: min(100% - 28px, 1320px);
+    padding-top: 24px;
+  }
+
+  .topbar {
+    gap: 22px;
+  }
+
+  .actions {
+    margin: 72px 0;
+  }
+
+  .device-card {
+    grid-template-columns: 1fr;
+  }
+}

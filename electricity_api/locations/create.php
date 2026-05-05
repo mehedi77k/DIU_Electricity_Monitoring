@@ -14,7 +14,7 @@ if ($locationName === '' || $verificationTable === '' || $pageLink === '') {
     json_response(false, 'Location name, verification ID and homepage link are required.', [], 422);
 }
 
-if (mb_strlen($locationName) < 2 || mb_strlen($locationName) > 150) {
+if (strlen($locationName) < 2 || strlen($locationName) > 150) {
     json_response(false, 'Location name must be between 2 and 150 characters.', [], 422);
 }
 
@@ -28,9 +28,7 @@ if (!filter_var($pageLink, FILTER_VALIDATE_URL)) {
 
 /*
 |--------------------------------------------------------------------------
-| Verify database table exists
-|--------------------------------------------------------------------------
-| Admin যে Verification ID দিবে, সেটা database table name হিসেবে check হবে.
+| Check verification table exists
 |--------------------------------------------------------------------------
 */
 
@@ -43,11 +41,18 @@ $checkTable = $conn->prepare("
 ");
 
 if (!$checkTable) {
-    json_response(false, 'Database prepare failed while verifying table.', [], 500);
+    json_response(false, 'Database prepare failed while verifying table.', [
+        'error' => $conn->error
+    ], 500);
 }
 
 $checkTable->bind_param('s', $verificationTable);
-$checkTable->execute();
+
+if (!$checkTable->execute()) {
+    json_response(false, 'Database execute failed while verifying table.', [
+        'error' => $checkTable->error
+    ], 500);
+}
 
 $tableResult = $checkTable->get_result();
 
@@ -57,7 +62,7 @@ if ($tableResult->num_rows !== 1) {
 
 /*
 |--------------------------------------------------------------------------
-| Check duplicate location
+| Check duplicate
 |--------------------------------------------------------------------------
 */
 
@@ -69,11 +74,18 @@ $checkLocation = $conn->prepare("
 ");
 
 if (!$checkLocation) {
-    json_response(false, 'Database prepare failed while checking location.', [], 500);
+    json_response(false, 'Database prepare failed while checking location.', [
+        'error' => $conn->error
+    ], 500);
 }
 
 $checkLocation->bind_param('s', $verificationTable);
-$checkLocation->execute();
+
+if (!$checkLocation->execute()) {
+    json_response(false, 'Database execute failed while checking location.', [
+        'error' => $checkLocation->error
+    ], 500);
+}
 
 $existing = $checkLocation->get_result();
 
@@ -81,21 +93,27 @@ if ($existing->num_rows > 0) {
     $existingRow = $existing->fetch_assoc();
     $existingId = (int)$existingRow['id'];
 
-    $reactivate = $conn->prepare("
+    $update = $conn->prepare("
         UPDATE location_pages
-        SET location_name = ?, page_link = ?, is_active = 1
+        SET location_name = ?,
+            page_link = ?,
+            is_active = 1
         WHERE id = ?
         LIMIT 1
     ");
 
-    if (!$reactivate) {
-        json_response(false, 'Database prepare failed while updating location.', [], 500);
+    if (!$update) {
+        json_response(false, 'Database prepare failed while updating location.', [
+            'error' => $conn->error
+        ], 500);
     }
 
-    $reactivate->bind_param('ssi', $locationName, $pageLink, $existingId);
+    $update->bind_param('ssi', $locationName, $pageLink, $existingId);
 
-    if (!$reactivate->execute()) {
-        json_response(false, 'Failed to update existing location.', [], 500);
+    if (!$update->execute()) {
+        json_response(false, 'Failed to update existing location.', [
+            'error' => $update->error
+        ], 500);
     }
 
     json_response(true, 'Location homepage updated successfully.', [
@@ -105,7 +123,7 @@ if ($existing->num_rows > 0) {
 
 /*
 |--------------------------------------------------------------------------
-| Create location homepage card
+| Insert new location
 |--------------------------------------------------------------------------
 */
 
@@ -116,14 +134,16 @@ $insert = $conn->prepare("
 ");
 
 if (!$insert) {
-    json_response(false, 'Database prepare failed while creating location.', [], 500);
+    json_response(false, 'Database prepare failed while creating location.', [
+        'error' => $conn->error
+    ], 500);
 }
 
 $insert->bind_param('sss', $locationName, $verificationTable, $pageLink);
 
 if (!$insert->execute()) {
     json_response(false, 'Failed to create location homepage.', [
-        'error' => $conn->error
+        'error' => $insert->error
     ], 500);
 }
 

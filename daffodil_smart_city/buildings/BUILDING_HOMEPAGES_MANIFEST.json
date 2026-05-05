@@ -1,0 +1,72 @@
+[
+  {
+    "folder": "knowledge_tower",
+    "name": "Knowledge Tower",
+    "url": "http://localhost/diu_electricity_monitoring/daffodil_smart_city/knowledge_tower/"
+  },
+  {
+    "folder": "inspiration_building",
+    "name": "Inspiration Building",
+    "url": "http://localhost/diu_electricity_monitoring/daffodil_smart_city/inspiration_building/"
+  },
+  {
+    "folder": "admission_building",
+    "name": "Admission Building",
+    "url": "http://localhost/diu_electricity_monitoring/daffodil_smart_city/admission_building/"
+  },
+  {
+    "folder": "dean_building",
+    "name": "Dean Building",
+    "url": "http://localhost/diu_electricity_monitoring/daffodil_smart_city/dean_building/"
+  },
+  {
+    "folder": "innovation_lab",
+    "name": "Innovation Lab",
+    "url": "http://localhost/diu_electricity_monitoring/daffodil_smart_city/innovation_lab/"
+  },
+  {
+    "folder": "medical_center",
+    "name": "Medical Center",
+    "url": "http://localhost/diu_electricity_monitoring/daffodil_smart_city/medical_center/"
+  },
+  {
+    "folder": "yksg_1",
+    "name": "Yunus Khan Scholar Garden-1 (YKSG-1)",
+    "url": "http://localhost/diu_electricity_monitoring/daffodil_smart_city/yksg_1/"
+  },
+  {
+    "folder": "yksg_2",
+    "name": "Yunus Khan Scholar Garden-2 (YKSG-2)",
+    "url": "http://localhost/diu_electricity_monitoring/daffodil_smart_city/yksg_2/"
+  },
+  {
+    "folder": "yksg_3",
+    "name": "Yunus Khan Scholar Garden-3 (YKSG-3)",
+    "url": "http://localhost/diu_electricity_monitoring/daffodil_smart_city/yksg_3/"
+  },
+  {
+    "folder": "rasg_1",
+    "name": "Rowshan Ara Scholar Garden-1 (RASG-1)",
+    "url": "http://localhost/diu_electricity_monitoring/daffodil_smart_city/rasg_1/"
+  },
+  {
+    "folder": "rasg_2",
+    "name": "Rowshan Ara Scholar Garden-2 (RASG-2)",
+    "url": "http://localhost/diu_electricity_monitoring/daffodil_smart_city/rasg_2/"
+  },
+  {
+    "folder": "sadhinota_sommelon_kendro",
+    "name": "Sadhinota Sommelon Kendro (Main Auditorium)",
+    "url": "http://localhost/diu_electricity_monitoring/daffodil_smart_city/sadhinota_sommelon_kendro/"
+  },
+  {
+    "folder": "daffodil_islamic_center",
+    "name": "Daffodil Islamic Center (Mosque Complex)",
+    "url": "http://localhost/diu_electricity_monitoring/daffodil_smart_city/daffodil_islamic_center/"
+  },
+  {
+    "folder": "dsc_food_court",
+    "name": "DSC Food Court",
+    "url": "http://localhost/diu_electricity_monitoring/daffodil_smart_city/dsc_food_court/"
+  }
+]
