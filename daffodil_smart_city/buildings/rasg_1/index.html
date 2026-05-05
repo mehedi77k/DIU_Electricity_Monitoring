@@ -1,47 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rowshan Ara Scholar Garden-1 (RASG-1) | Daffodil Smart City</title>
-  <link rel="stylesheet" href="assets/css/style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Building | Daffodil Smart City</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
 </head>
-<body>
-  <main class="page">
-    <header class="topbar">
-      <button class="menu-btn" type="button" aria-label="Open menu">☰</button>
-      <div>
-        <p class="eyebrow">Building Home</p>
-        <h1 id="buildingName">Rowshan Ara Scholar Garden-1 (RASG-1)</h1>
-        <p class="lead" id="buildingLead">Monitor devices and electricity readings for Rowshan Ara Scholar Garden-1 (RASG-1).</p>
-        <p class="status-row">
-          <a class="back-link" id="campusLink" href="../../index.html">← Back to Daffodil Smart City</a>
-        </p>
-      </div>
-    </header>
+<body class="building-page">
+    <button class="burger-btn" id="burgerBtn" type="button" aria-label="Open menu" aria-expanded="false">
+        ☰
+    </button>
 
-    <section class="actions" aria-label="Admin actions">
-      <a class="primary-btn" id="adminLink" href="#">
-        <span class="plus">+</span>
-        Add Device
-      </a>
-    </section>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <section class="panel" aria-labelledby="deviceHeading">
-      <p class="eyebrow">Device Cards</p>
-      <h2 id="deviceHeading">Added Devices</h2>
-      <div class="cards" id="cards">
-        <div class="empty-card">
-          <div>
-            <div class="empty-icon">⚡</div>
-            <h3>Loading devices...</h3>
-            <p>Please wait.</p>
-          </div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark small">⚡</div>
+            <div>
+                <h2>Building</h2>
+                <span>Level Manager</span>
+            </div>
         </div>
-      </div>
-    </section>
-  </main>
 
-  <script src="assets/js/app.js"></script>
+        <nav class="side-nav">
+            <a href="../../">Daffodil Smart City</a>
+            <a href="../../../electricity_frontend/dashboard.html">Admin Dashboard</a>
+            <a href="./" class="active">Building Home</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="content-shell">
+            <header class="topbar">
+                <div class="topbar-title">
+                    <p class="eyebrow">Building Home</p>
+                    <h1 id="buildingTitle">Building</h1>
+                    <p class="muted">Add and manage levels under this building.</p>
+                </div>
+            </header>
+
+            <div id="pageAlert" class="alert hidden"></div>
+
+            <section class="center-action-wrap">
+                <button class="add-device-btn center-add-btn" id="addLevelBtn" type="button">
+                    <span>+</span>
+                    Add Levels
+                </button>
+            </section>
+
+            <section class="devices-panel">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Level Cards</p>
+                        <h2>Added Levels</h2>
+                    </div>
+                </div>
+
+                <div class="device-grid" id="levelGrid">
+                    <!-- Level cards will load here -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div class="modal-overlay hidden" id="levelModal">
+        <div class="modal-card">
+            <div class="modal-head">
+                <div>
+                    <p class="eyebrow">Connect Level</p>
+                    <h2>Add Level Homepage</h2>
+                </div>
+
+                <button class="modal-close-btn" id="modalCloseBtn" type="button" aria-label="Close modal">
+                    ×
+                </button>
+            </div>
+
+            <form
+                id="levelForm"
+                class="building-form"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+            >
+                <div class="form-group">
+                    <label for="levelName">Level Name</label>
+
+                    <div class="suggest-wrap">
+                        <input
+                            type="text"
+                            id="levelName"
+                            name="level_name_manual_2026"
+                            placeholder="Select or type level name"
+                            autocomplete="off"
+                            autocorrect="off"
+                            autocapitalize="off"
+                            spellcheck="false"
+                            required
+                        />
+
+                        <div
+                            class="black-suggestion-box hidden"
+                            id="levelNameSuggestions"
+                            role="listbox"
+                        ></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="levelVerificationId">Verification ID</label>
+
+                    <div class="suggest-wrap">
+                        <input
+                            type="text"
+                            id="levelVerificationId"
+                            name="level_verification_id_manual_2026"
+                            placeholder="Enter level verification ID"
+                            autocomplete="off"
+                            autocorrect="off"
+                            autocapitalize="off"
+                            spellcheck="false"
+                            required
+                        />
+
+                        <div
+                            class="black-suggestion-box hidden"
+                            id="levelVerificationSuggestions"
+                            role="listbox"
+                        ></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="levelPageLink">Homepage Link</label>
+
+                    <div class="suggest-wrap">
+                        <input
+                            type="text"
+                            id="levelPageLink"
+                            name="level_homepage_link_manual_2026"
+                            placeholder="Paste level homepage link"
+                            autocomplete="off"
+                            autocorrect="off"
+                            autocapitalize="off"
+                            spellcheck="false"
+                            required
+                        />
+
+                        <div
+                            class="black-suggestion-box hidden"
+                            id="levelPageLinkSuggestions"
+                            role="listbox"
+                        ></div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-secondary" id="modalCancelBtn" type="button">
+                        Cancel
+                    </button>
+
+                    <button class="add-device-btn" id="saveLevelBtn" type="submit">
+                        Save Level
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
 </body>
 </html>
