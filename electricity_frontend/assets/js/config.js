@@ -1,40 +1,44 @@
-const API_BASE = `${window.location.origin}/diu_electricity_monitoring/electricity_api`;
-const API_BASE_URL = API_BASE;
+const CURRENT_PATH = window.location.pathname;
+const FRONTEND_MARKER = "/electricity_frontend/";
+const frontendIndex = CURRENT_PATH.indexOf(FRONTEND_MARKER);
+
+const APP_BASE = frontendIndex >= 0
+    ? CURRENT_PATH.substring(0, frontendIndex)
+    : "";
+
+const API_BASE = `${APP_BASE}/electricity_api`;
 
 async function apiFetch(endpoint, options = {}) {
-    const response = await fetch(`${API_BASE}${endpoint}`, {
-        method: options.method || "GET",
+    const fetchOptions = {
         credentials: "include",
+        ...options,
         headers: {
             "Accept": "application/json",
             ...(options.body ? { "Content-Type": "application/json" } : {}),
             ...(options.headers || {})
-        },
-        body: options.body || undefined
-    });
+        }
+    };
+
+    const response = await fetch(`${API_BASE}${endpoint}`, fetchOptions);
 
     let payload = null;
 
     try {
         payload = await response.json();
     } catch (error) {
-        throw new Error("Invalid JSON response from API.");
+        payload = {
+            success: false,
+            message: "Invalid JSON response from API.",
+            data: {}
+        };
     }
 
-    /*
-        Your API may return either:
-        { success: true, message: "...", data: {...} }
-        or:
-        { status: true, message: "...", data: {...} }
+    if (!response.ok || !payload.success) {
+        const message = payload && payload.message
+            ? payload.message
+            : "API request failed.";
 
-        This supports both formats.
-    */
-    const isSuccess =
-        payload &&
-        (payload.success === true || payload.status === true);
-
-    if (!response.ok || !isSuccess) {
-        throw new Error(payload?.message || "API request failed.");
+        throw new Error(message);
     }
 
     return payload;

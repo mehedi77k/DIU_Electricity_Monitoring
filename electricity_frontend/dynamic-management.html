@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dynamic Location Management | DIU Electricity Monitoring</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #1f2937;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: #111827;
+            color: white;
+            padding: 24px;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            color: #9ca3af;
+            font-size: 13px;
+            margin-bottom: 28px;
+        }
+
+        .nav-link,
+        .logout-btn {
+            display: block;
+            width: 100%;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            background: transparent;
+            border: 0;
+            text-align: left;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active,
+        .logout-btn:hover {
+            background: #374151;
+        }
+
+        .main {
+            padding: 28px;
+        }
+
+        h1 {
+            margin: 0 0 4px;
+            font-size: 28px;
+        }
+
+        .admin-name {
+            color: #4b5563;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: minmax(340px, 460px) 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .card h2 {
+            margin: 0 0 18px;
+            font-size: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 14px;
+            margin-bottom: 6px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+
+        input[readonly] {
+            background: #f9fafb;
+            color: #4b5563;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 5px;
+            line-height: 1.45;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 8px;
+            padding: 11px 14px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            width: 100%;
+            margin-top: 18px;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .alert {
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+
+        .alert.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .alert.danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .section-title {
+            margin: 28px 0 12px;
+            font-size: 16px;
+            color: #111827;
+        }
+
+        .list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .item {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px;
+            background: #ffffff;
+        }
+
+        .item-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .item-meta {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .item-actions a {
+            text-decoration: none;
+        }
+
+        .empty {
+            padding: 14px;
+            background: #f9fafb;
+            border: 1px dashed #d1d5db;
+            border-radius: 10px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        @media (max-width: 920px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">⚡ ElectroAdmin</div>
+        <div class="subtitle">Smart Monitoring</div>
+
+        <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link active" href="dynamic-management.html">Dynamic Location</a>
+
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+    </aside>
+
+    <main class="main">
+        <h1>Dynamic Location Management</h1>
+        <div class="admin-name">Logged in as <span id="adminName">Admin</span></div>
+
+        <div id="pageAlert" class="alert hidden"></div>
+
+        <div class="grid">
+            <section class="card">
+                <h2>Add / Activate</h2>
+
+                <div id="formAlert" class="alert hidden"></div>
+
+                <form id="dynamicForm">
+                    <label for="type">Entity Type</label>
+                    <select id="type" required>
+                        <option value="">Select type</option>
+                        <option value="building">Building</option>
+                        <option value="level">Level</option>
+                        <option value="room">Room</option>
+                    </select>
+
+                    <div id="parentBuildingGroup" class="hidden">
+                        <label for="buildingVerificationId">Parent Building</label>
+                        <select id="buildingVerificationId">
+                            <option value="">Select active building</option>
+                        </select>
+                    </div>
+
+                    <div id="parentLevelGroup" class="hidden">
+                        <label for="levelVerificationId">Parent Level</label>
+                        <select id="levelVerificationId">
+                            <option value="">Select active level</option>
+                        </select>
+                    </div>
+
+                    <label for="catalogSelect">Approved Item</label>
+                    <select id="catalogSelect" required>
+                        <option value="">Select approved item</option>
+                    </select>
+
+                    <label for="name">Name / Number</label>
+                    <input type="text" id="name" readonly required>
+
+                    <label for="verificationId">Verification ID</label>
+                    <input type="text" id="verificationId" readonly required>
+
+                    <label for="pageLink">Link</label>
+                    <input type="url" id="pageLink" readonly required>
+
+                    <div class="hint">
+                        The form now auto-fills the correct values from your MySQL catalog tables.
+                    </div>
+
+                    <button class="btn btn-primary" id="submitBtn" type="submit">
+                        Submit
+                    </button>
+                </form>
+            </section>
+
+            <section class="card">
+                <h2>Active Dynamic Hierarchy</h2>
+
+                <h3 class="section-title">Buildings</h3>
+                <div class="list" id="buildingList"></div>
+
+                <h3 class="section-title">Levels</h3>
+                <div class="list" id="levelList"></div>
+
+                <h3 class="section-title">Rooms</h3>
+                <div class="list" id="roomList"></div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/dynamic-management.js"></script>
+</body>
+</html>
