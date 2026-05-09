@@ -680,10 +680,3 @@ GitHub: [mehedi77k](https://github.com/mehedi77k)
 https://github.com/mehedi77k/DIU_Electricity_Monitoring
 ```
 
----
-
-## License
-
-No license file is currently provided in this repository.
-
-If this project is intended to be open source, add a license such as MIT, Apache-2.0, or GPL depending on your preferred usage terms.
