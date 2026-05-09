@@ -454,16 +454,28 @@
       }
     });
 
-    setupSuggestion(nameInput, nameBox, () => getSuggestions(state, nameInput.value), (item) =>
-      selectSuggestion(root, config, ctx, item)
+    setupSuggestion(
+      nameInput,
+      nameBox,
+      () => getSuggestionsByField(state, nameInput.value, "name"),
+      (item) => selectSuggestion(root, config, ctx, item),
+      "name"
     );
 
-    setupSuggestion(slugInput, slugBox, () => getSuggestions(state, slugInput.value), (item) =>
-      selectSuggestion(root, config, ctx, item)
+    setupSuggestion(
+      slugInput,
+      slugBox,
+      () => getSuggestionsByField(state, slugInput.value, "slug"),
+      (item) => selectSuggestion(root, config, ctx, item),
+      "slug"
     );
 
-    setupSuggestion(linkInput, linkBox, () => getSuggestions(state, linkInput.value), (item) =>
-      selectSuggestion(root, config, ctx, item)
+    setupSuggestion(
+      linkInput,
+      linkBox,
+      () => getSuggestions(state, linkInput.value),
+      (item) => selectSuggestion(root, config, ctx, item),
+      "all"
     );
 
     nameInput.addEventListener("input", () => {
@@ -493,9 +505,20 @@
     }
   }
 
-  function setupSuggestion(input, box, getItems, onSelect) {
-    input.addEventListener("focus", () => renderSuggestionBox(box, getItems(), onSelect));
-    input.addEventListener("input", () => renderSuggestionBox(box, getItems(), onSelect));
+  function setupSuggestion(input, box, getItems, onSelect, mode = "all") {
+    input.addEventListener("focus", () => renderSuggestionBox(box, getItems(), onSelect, mode));
+    input.addEventListener("input", () => renderSuggestionBox(box, getItems(), onSelect, mode));
+  }
+
+  function getSuggestionsByField(state, query = "", field = "name") {
+    const search = query.trim().toLowerCase();
+
+    return state.catalog.filter((item) => {
+      const value = String(item[field] || "").toLowerCase();
+      if (!value) return false;
+      if (!search) return true;
+      return value.includes(search);
+    });
   }
 
   function getSuggestions(state, query = "") {
@@ -513,7 +536,7 @@
     });
   }
 
-  function renderSuggestionBox(box, items, onSelect) {
+  function renderSuggestionBox(box, items, onSelect, mode = "all") {
     hideAllSuggestionBoxesExcept(box);
     box.innerHTML = "";
 
@@ -537,11 +560,17 @@
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "black-suggestion-item";
-      btn.innerHTML = `
-        <span class="suggestion-id">ID: ${escapeHtml(item.id || "-")}</span>
-        <span class="suggestion-name">${escapeHtml(item.name)}</span>
-        <span class="suggestion-link">${escapeHtml(item.link)}</span>
-      `;
+      if (mode === "name") {
+        btn.innerHTML = `<span class="suggestion-name">${escapeHtml(item.name)}</span>`;
+      } else if (mode === "slug") {
+        btn.innerHTML = `<span class="suggestion-name">${escapeHtml(item.slug)}</span>`;
+      } else {
+        btn.innerHTML = `
+          <span class="suggestion-id">ID: ${escapeHtml(item.id || "-")}</span>
+          <span class="suggestion-name">${escapeHtml(item.name)}</span>
+          <span class="suggestion-link">${escapeHtml(item.link)}</span>
+        `;
+      }
 
       btn.addEventListener("mousedown", (event) => event.preventDefault());
       btn.addEventListener("click", () => {
