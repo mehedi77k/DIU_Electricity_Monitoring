@@ -175,22 +175,16 @@ document.addEventListener("DOMContentLoaded", () => {
             card.className = "location-card";
 
             card.innerHTML = `
-                <div class="location-card-head">
-                    <div>
-                        <h3>${escapeHtml(location.location_name)}</h3>
-                    </div>
+                <h3>${escapeHtml(location.location_name)}</h3>
 
-                    <span class="status-badge status-online">Active</span>
-                </div>
-
-                <div class="location-actions">
-                    <a class="open-location-btn" href="${escapeHtml(location.page_link)}">
-                        Open Homepage
+                <div class="building-card-actions">
+                    <a class="open-homepage-btn" href="${escapeHtml(location.page_link)}">
+                        Open Location
                     </a>
 
                     <button 
                         type="button" 
-                        class="remove-location-btn"
+                        class="remove-building-btn"
                         data-location-id="${location.id}">
                         Remove
                     </button>
@@ -208,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
             locationGrid.appendChild(card);
         });
 
-        locationGrid.querySelectorAll(".remove-location-btn").forEach((button) => {
+        locationGrid.querySelectorAll(".remove-building-btn").forEach((button) => {
             button.addEventListener("click", (event) => {
                 event.stopPropagation();
 

@@ -4,317 +4,104 @@
     <meta charset="UTF-8">
     <title>Level Rooms | Daffodil Smart City</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f7fb;
-            color: #111827;
-        }
-
-        .page {
-            min-height: 100vh;
-            padding: 32px;
-        }
-
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 28px;
-        }
-
-        .title-block p {
-            margin: 0 0 8px;
-            color: #2563eb;
-            font-size: 13px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .title-block h1 {
-            margin: 0;
-            font-size: 34px;
-        }
-
-        .title-block .sub {
-            margin-top: 8px;
-            color: #6b7280;
-            font-size: 15px;
-        }
-
-        .btn {
-            border: 0;
-            border-radius: 12px;
-            padding: 12px 18px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 15px;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-primary {
-            background: #2563eb;
-            color: #ffffff;
-        }
-
-        .btn-secondary {
-            background: #e5e7eb;
-            color: #111827;
-        }
-
-        .btn-danger {
-            background: #dc2626;
-            color: #ffffff;
-        }
-
-        .alert {
-            padding: 14px 16px;
-            border-radius: 12px;
-            margin-bottom: 18px;
-            font-size: 14px;
-            line-height: 1.45;
-        }
-
-        .alert.success {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .alert.danger {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .card {
-            background: #ffffff;
-            border-radius: 18px;
-            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
-            padding: 24px;
-        }
-
-        .card h2 {
-            margin: 0 0 18px;
-            font-size: 22px;
-        }
-
-        .room-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 18px;
-        }
-
-        .room-card {
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 18px;
-            background: #ffffff;
-        }
-
-        .room-card h3 {
-            margin: 0 0 8px;
-            font-size: 20px;
-        }
-
-        .room-meta {
-            font-size: 14px;
-            color: #4b5563;
-            line-height: 1.55;
-            word-break: break-word;
-        }
-
-        .room-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-            flex-wrap: wrap;
-        }
-
-        .empty-state {
-            padding: 22px;
-            border: 1px dashed #cbd5e1;
-            border-radius: 16px;
-            color: #64748b;
-            background: #f8fafc;
-        }
-
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.55);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            z-index: 1000;
-        }
-
-        .modal-box {
-            width: min(640px, 100%);
-            background: #ffffff;
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 28px 70px rgba(15, 23, 42, 0.35);
-        }
-
-        .modal-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            gap: 16px;
-            margin-bottom: 22px;
-        }
-
-        .modal-head p {
-            margin: 0 0 8px;
-            color: #2563eb;
-            font-size: 12px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .modal-head h2 {
-            margin: 0;
-            font-size: 28px;
-        }
-
-        .close-btn {
-            width: 46px;
-            height: 46px;
-            border: 0;
-            border-radius: 14px;
-            background: #eff6ff;
-            color: #111827;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            margin-top: 16px;
-            margin-bottom: 7px;
-            font-size: 14px;
-        }
-
-        input,
-        select {
-            width: 100%;
-            border: 1px solid #dbe3ef;
-            border-radius: 14px;
-            padding: 14px 16px;
-            font-size: 15px;
-            background: #ffffff;
-        }
-
-        input[readonly] {
-            background: #f9fafb;
-            color: #374151;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            margin-top: 26px;
-        }
-
-        @media (max-width: 680px) {
-            .page {
-                padding: 20px;
-            }
-
-            .topbar {
-                align-items: stretch;
-                flex-direction: column;
-            }
-
-            .title-block h1 {
-                font-size: 26px;
-            }
-
-            .modal-actions {
-                flex-direction: column;
-            }
-
-            .modal-actions .btn {
-                width: 100%;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
 
-<body>
-<main class="page">
-    <div class="topbar">
-        <div class="title-block">
-            <p>Level Home</p>
-            <h1 id="levelTitle">Loading Level...</h1>
-            <div class="sub">Add and manage rooms under this level.</div>
-        </div>
+<body class="building-page">
+<main class="main-content">
+    <div class="content-shell">
+        <header class="topbar">
+            <div class="topbar-title">
+                <p class="eyebrow">Level Home</p>
+                <h1 id="levelTitle">Loading Level...</h1>
+                <p class="muted">Add and manage rooms under this level.</p>
+            </div>
 
-        <button class="btn btn-primary" id="addRoomBtn" type="button">
-            + Add Rooms
-        </button>
+            <div class="topbar-actions">
+                <button class="add-device-btn" id="addRoomBtn" type="button">
+                    <span>+</span>
+                    Add Rooms
+                </button>
+            </div>
+        </header>
+
+        <div id="pageAlert" class="alert hidden"></div>
+
+        <section class="devices-panel">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Room Cards</p>
+                    <h2>Added Rooms</h2>
+                </div>
+            </div>
+
+            <div class="device-grid" id="roomGrid">
+                <div class="empty-state">
+                    <div class="empty-icon">⚡</div>
+                    <h3>Loading rooms...</h3>
+                    <p>Please wait while we fetch room data.</p>
+                </div>
+            </div>
+        </section>
     </div>
-
-    <div id="pageAlert" class="alert hidden"></div>
-
-    <section class="card">
-        <h2>Added Rooms</h2>
-        <div class="room-grid" id="roomGrid">
-            <div class="empty-state">Loading rooms...</div>
-        </div>
-    </section>
 </main>
 
-<div class="modal hidden" id="roomModal">
-    <div class="modal-box">
+<div class="modal-overlay hidden" id="roomModal">
+    <div class="modal-card">
         <div class="modal-head">
             <div>
-                <p>Connect Room</p>
+                <p class="eyebrow">Connect Room</p>
                 <h2>Add Room Homepage</h2>
             </div>
 
-            <button class="close-btn" id="modalCloseBtn" type="button">×</button>
+            <button class="modal-close-btn" id="modalCloseBtn" type="button" aria-label="Close modal">
+                ×
+            </button>
         </div>
 
-        <form id="roomForm">
-            <label for="approvedRoomSelect">Approved Room</label>
-            <select id="approvedRoomSelect" required>
-                <option value="">Select approved room</option>
-            </select>
+        <form
+            id="roomForm"
+            class="building-form"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+        >
+            <div class="form-group">
+                <label for="approvedRoomSelect">Approved Room</label>
+                <select id="approvedRoomSelect" required>
+                    <option value="">Select approved room</option>
+                </select>
+            </div>
 
-            <label for="roomNo">Room Name</label>
-            <input type="text" id="roomNo" readonly required>
+            <div class="form-group">
+                <label for="roomNo">Room Name</label>
+                <input type="text" id="roomNo" readonly required>
+            </div>
 
-            <label for="roomVerificationId">Verification ID</label>
-            <input type="text" id="roomVerificationId" readonly required>
+            <div class="form-group">
+                <label for="roomVerificationId">Verification ID</label>
+                <input type="text" id="roomVerificationId" readonly required>
+            </div>
 
-            <label for="roomPageLink">Homepage Link</label>
-            <input type="url" id="roomPageLink" readonly required>
+            <div class="form-group">
+                <label for="roomPageLink">Homepage Link</label>
+                <input type="url" id="roomPageLink" readonly required>
+            </div>
 
             <div class="modal-actions">
-                <button class="btn btn-secondary" id="modalCancelBtn" type="button">Cancel</button>
-                <button class="btn btn-primary" id="saveRoomBtn" type="submit">Save Room</button>
+                <button class="btn-secondary" id="modalCancelBtn" type="button">
+                    Cancel
+                </button>
+
+                <button class="add-device-btn" id="saveRoomBtn" type="submit">
+                    Save Room
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<script src="../../../../assets/js/floor-page.js?v=room-fix-20260506"></script>
+<script src="../../../../assets/js/floor-page.js?v=room-ui-20260509"></script>
 </body>
 </html>

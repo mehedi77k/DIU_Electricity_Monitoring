@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
     --bg: #eef4fb;
@@ -19,7 +19,7 @@
     --shadow-soft: 0 12px 30px rgba(20, 45, 80, 0.1);
     --shadow-strong: 0 30px 75px rgba(20, 45, 80, 0.18);
     --radius: 24px;
-    --font-body: "Space Grotesk", "Segoe UI", Arial, sans-serif;
+    --font-body: "Inter", "Segoe UI", Arial, sans-serif;
 }
 
 * {
@@ -522,12 +522,56 @@ select:focus {
     margin-top: 22px;
 }
 
+.building-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.location-card .building-card-actions {
+    justify-content: space-between;
+    width: 100%;
+}
+
 .open-location-btn,
 .remove-location-btn {
     min-height: 44px;
     padding: 0 20px;
     border-radius: 13px;
     font-weight: 800;
+}
+
+.open-homepage-btn {
+    min-height: 44px;
+    min-width: 132px;
+    padding: 0 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    background: linear-gradient(135deg, var(--primary), #3e80bd);
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 10px 22px rgba(31, 95, 153, 0.18);
+    text-decoration: none;
+}
+
+.remove-building-btn {
+    min-height: 44px;
+    min-width: 132px;
+    padding: 0 20px;
+    border-radius: 13px;
+    border: 0;
+    background: #dc2626;
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 10px 22px rgba(220, 38, 38, 0.22);
+}
+
+.remove-building-btn:hover {
+    background: #c81e1e;
 }
 
 .open-location-btn {

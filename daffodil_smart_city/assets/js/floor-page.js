@@ -224,7 +224,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!activeRooms.length) {
             roomGrid.innerHTML = `
                 <div class="empty-state">
-                    No room has been added under this level yet.
+                    <div class="empty-icon">⚡</div>
+                    <h3>No room added yet</h3>
+                    <p>Click “Add Rooms” to connect a room homepage.</p>
                 </div>
             `;
             return;
@@ -232,21 +234,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         activeRooms.forEach(room => {
             const card = document.createElement("article");
-            card.className = "room-card";
+            card.className = "device-card";
 
             card.innerHTML = `
                 <h3>${escapeHtml(room.room_name)}</h3>
-
-                <div class="room-meta">
-                    <p><strong>Room ID:</strong> ${escapeHtml(room.room_verification_id)}</p>
-                    <p><strong>Building ID:</strong> ${escapeHtml(room.building_verification_id)}</p>
-                    <p><strong>Level ID:</strong> ${escapeHtml(room.floor_verification_id)}</p>
-                    <p><strong>Link:</strong> ${escapeHtml(room.page_link)}</p>
-                </div>
-
-                <div class="room-actions">
-                    <a class="btn btn-primary" href="${escapeAttribute(room.page_link)}">Open Room</a>
-                    <button class="btn btn-danger" type="button" data-delete-room="${Number(room.id)}">Remove</button>
+                <div class="building-card-actions">
+                    <a class="open-homepage-btn" href="${escapeAttribute(room.page_link)}">Open Room</a>
+                    <button class="remove-building-btn" type="button" data-delete-room="${Number(room.id)}">Remove</button>
                 </div>
             `;
 
@@ -288,10 +282,12 @@ document.addEventListener("DOMContentLoaded", () => {
         clearFormFields();
         renderApprovedRoomOptions();
         roomModal.classList.remove("hidden");
+        document.body.classList.add("modal-open");
     }
 
     function closeModal() {
         roomModal.classList.add("hidden");
+        document.body.classList.remove("modal-open");
         approvedRoomSelect.value = "";
         clearFormFields();
     }

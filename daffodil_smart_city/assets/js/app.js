@@ -242,10 +242,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       card.className = "device-card building-card";
       card.innerHTML = `
         <h3>${escapeHtml(building.building_name)}</h3>
-        <p class="status-pill online">Active</p>
-        <div class="card-actions">
-          <a class="primary-btn open-homepage-btn" href="${escapeAttribute(pageLink)}">Open Homepage</a>
-          <button type="button" class="secondary-btn remove-building-btn">Remove</button>
+        <div class="building-card-actions">
+          <a class="open-homepage-btn" href="${escapeAttribute(pageLink)}">Open Building</a>
+          <button type="button" class="remove-building-btn">Remove</button>
         </div>
       `;
 

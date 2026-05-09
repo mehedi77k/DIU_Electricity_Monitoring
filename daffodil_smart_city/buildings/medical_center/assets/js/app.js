@@ -250,14 +250,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     levels.forEach((level) => {
       const pageLink = String(level.page_link || "").trim();
+      const levelSlug = String(
+        level.floor_verification_id || level.level_verification_id || level.slug || ""
+      ).trim();
       const card = document.createElement("article");
       card.className = "device-card building-card";
       card.innerHTML = `
         <h3>${escapeHtml(level.floor_name)}</h3>
-        <p class="status-pill online">Active</p>
-        <div class="card-actions">
-          <a class="primary-btn open-homepage-btn" href="${escapeAttribute(pageLink)}">Open Homepage</a>
-          <button type="button" class="secondary-btn remove-building-btn">Remove</button>
+        <div class="building-card-actions">
+          <a class="open-homepage-btn" href="${escapeAttribute(pageLink)}">Open Level</a>
+          <button type="button" class="remove-building-btn">Remove</button>
         </div>
       `;
 

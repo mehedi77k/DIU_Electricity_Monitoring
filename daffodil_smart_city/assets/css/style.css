@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
     --bg: #eef4fb;
@@ -19,7 +19,7 @@
     --shadow-soft: 0 12px 30px rgba(20, 45, 80, 0.1);
     --shadow-strong: 0 30px 75px rgba(20, 45, 80, 0.18);
     --radius: 24px;
-    --font-body: "Space Grotesk", "Segoe UI", Arial, sans-serif;
+    --font-body: "Inter", "Segoe UI", Arial, sans-serif;
 }
 
 * {
@@ -224,10 +224,21 @@ button {
 .topbar {
     width: 100%;
     margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
 }
 
 .topbar-title {
     text-align: left;
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 0 0 auto;
 }
 
 .topbar h1 {
@@ -615,6 +626,7 @@ body.modal-open {
 
 .open-homepage-btn {
     min-height: 44px;
+    min-width: 132px;
     padding: 0 20px;
     display: inline-flex;
     align-items: center;
@@ -633,16 +645,18 @@ body.modal-open {
 
 .remove-building-btn {
     min-height: 44px;
+    min-width: 132px;
     padding: 0 20px;
     border-radius: 13px;
-    border: 1px solid rgba(201, 60, 60, 0.28);
-    background: #fff3f3;
-    color: var(--danger);
+    border: 0;
+    background: #dc2626;
+    color: #ffffff;
     font-weight: 800;
+    box-shadow: 0 10px 22px rgba(220, 38, 38, 0.22);
 }
 
 .remove-building-btn:hover {
-    background: #ffe9e9;
+    background: #c81e1e;
 }
 
 /* Custom black suggestion dropdown */
