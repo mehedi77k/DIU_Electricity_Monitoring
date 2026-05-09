@@ -1,5 +1,7 @@
 <?php
+
 require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../config/admin_password.php';
 
 function dynamic_page_response(bool $status, string $message, array $data = [], int $httpCode = 200): void
 {
@@ -15,12 +17,12 @@ function dynamic_page_response(bool $status, string $message, array $data = [], 
 
 function dynamic_clean($value): string
 {
-    return trim((string)$value);
+    return trim((string) $value);
 }
 
 function dynamic_valid_slug(string $value, int $max = 150): bool
 {
-    return (bool)preg_match('/^[a-z0-9_]{2,' . $max . '}$/', $value);
+    return (bool) preg_match('/^[a-z0-9_]{2,' . $max . '}$/', $value);
 }
 
 function dynamic_safe_html(string $value): string
@@ -39,6 +41,7 @@ function dynamic_validate_page_link(string $pageLink, string $expectedPathPart):
     }
 
     $pagePath = parse_url($pageLink, PHP_URL_PATH);
+
     if (!$pagePath) {
         dynamic_page_response(false, 'Invalid homepage link path.', [], 422);
     }
@@ -56,11 +59,13 @@ function dynamic_validate_page_link(string $pageLink, string $expectedPathPart):
 function dynamic_ensure_directory_from_link(string $pageLink): ?string
 {
     $pagePath = parse_url($pageLink, PHP_URL_PATH);
+
     if (!$pagePath) {
         return null;
     }
 
     $documentRoot = rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
+
     if ($documentRoot === '') {
         return null;
     }
@@ -79,47 +84,56 @@ function dynamic_ensure_directory_from_link(string $pageLink): ?string
     return $fullPath;
 }
 
-function create_building_homepage_if_missing(string $pageLink, string $buildingVerificationId, string $buildingName): void
-{
-        $fullPath = dynamic_ensure_directory_from_link($pageLink);
+function create_building_homepage_if_missing(
+    string $pageLink,
+    string $buildingVerificationId,
+    string $buildingName
+): void {
+    $fullPath = dynamic_ensure_directory_from_link($pageLink);
 
-        if (!$fullPath) {
-                return;
-        }
+    if (!$fullPath) {
+        return;
+    }
 
-        $indexFile = $fullPath . 'index.html';
+    $indexFile = $fullPath . 'index.html';
 
-        if (file_exists($indexFile)) {
-                return;
-        }
+    if (file_exists($indexFile)) {
+        return;
+    }
 
-        $safeTitle = dynamic_safe_html($buildingName);
-        $safeBuildingId = dynamic_safe_html($buildingVerificationId);
+    $safeTitle = dynamic_safe_html($buildingName);
+    $safeBuildingId = dynamic_safe_html($buildingVerificationId);
 
-        $html = <<<HTML
+    $html = <<<HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{$safeTitle} | Daffodil Smart City</title>
-    <link rel="stylesheet" href="../../assets/css/entity-manager.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{$safeTitle} | Daffodil Smart City</title>
+  <link rel="stylesheet" href="../../assets/css/entity-manager.css" />
 </head>
 <body>
-    <div
-        id="diuEntityApp"
-        data-entity="level"
-        data-campus-table="daffodil_smart_city"
-        data-building-id="{$safeBuildingId}"
-    ></div>
+  <div
+    id="diuEntityApp"
+    data-entity="level"
+    data-campus-table="daffodil_smart_city"
+    data-building-id="{$safeBuildingId}"
+  ></div>
 
-    <script src="../../assets/js/entity-manager.js"></script>
+  <script src="../../assets/js/entity-manager.js"></script>
 </body>
 </html>
 HTML;
 
-        file_put_contents($indexFile, $html);
+    file_put_contents($indexFile, $html);
 }
+
+/*
+|--------------------------------------------------------------------------
+| Request method and admin session check
+|--------------------------------------------------------------------------
+*/
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     dynamic_page_response(false, 'Only POST request is allowed.', [], 405);
@@ -129,14 +143,43 @@ if (empty($_SESSION['admin_id'])) {
     dynamic_page_response(false, 'Unauthorized. Please login from Admin Dashboard first.', [], 401);
 }
 
+/*
+|--------------------------------------------------------------------------
+| Decode JSON input
+|--------------------------------------------------------------------------
+*/
+
 $input = json_decode(file_get_contents('php://input'), true);
+
 if (!is_array($input)) {
     dynamic_page_response(false, 'Invalid JSON request.', [], 400);
 }
 
+/*
+|--------------------------------------------------------------------------
+| Verify current admin password
+|--------------------------------------------------------------------------
+*/
+
+$adminPassword = dynamic_clean($input['admin_password'] ?? '');
+
+if ($adminPassword === '') {
+    dynamic_page_response(false, 'Enter Your Password is required.', [], 422);
+}
+
+if (!admin_password_matches($conn, $adminPassword)) {
+    dynamic_page_response(false, 'Admin password is incorrect.', [], 403);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Collect and validate input
+|--------------------------------------------------------------------------
+*/
+
 $campusTable = dynamic_clean($input['campus_table'] ?? 'daffodil_smart_city');
 $buildingName = dynamic_clean($input['building_name'] ?? '');
-$verificationId = dynamic_clean($input['verification_id'] ?? '');
+$verificationId = strtolower(dynamic_clean($input['verification_id'] ?? ''));
 $pageLink = dynamic_clean($input['page_link'] ?? '');
 
 if ($campusTable === '' || !dynamic_valid_slug($campusTable, 100)) {
@@ -147,6 +190,10 @@ if ($buildingName === '') {
     dynamic_page_response(false, 'Building name is required.', [], 422);
 }
 
+if (strlen($buildingName) < 2 || strlen($buildingName) > 150) {
+    dynamic_page_response(false, 'Building name must be between 2 and 150 characters.', [], 422);
+}
+
 if ($verificationId === '' || !dynamic_valid_slug($verificationId, 150)) {
     dynamic_page_response(false, 'Verification ID can contain only lowercase letters, numbers, and underscore.', [], 422);
 }
@@ -154,7 +201,13 @@ if ($verificationId === '' || !dynamic_valid_slug($verificationId, 150)) {
 $expectedPathPart = '/daffodil_smart_city/buildings/' . $verificationId . '/';
 dynamic_validate_page_link($pageLink, $expectedPathPart);
 
-$catalogStmt = $conn->prepare(" 
+/*
+|--------------------------------------------------------------------------
+| Check building exists in building_catalog
+|--------------------------------------------------------------------------
+*/
+
+$catalogStmt = $conn->prepare("
     SELECT id
     FROM building_catalog
     WHERE campus_table = ?
@@ -171,7 +224,13 @@ if (!$catalogStmt) {
 }
 
 $catalogStmt->bind_param('sss', $campusTable, $buildingName, $verificationId);
-$catalogStmt->execute();
+
+if (!$catalogStmt->execute()) {
+    dynamic_page_response(false, 'Database execute failed while checking building_catalog.', [
+        'error' => $catalogStmt->error,
+    ], 500);
+}
+
 $catalogResult = $catalogStmt->get_result();
 
 if ($catalogResult->num_rows !== 1) {
@@ -184,9 +243,15 @@ if ($catalogResult->num_rows !== 1) {
 }
 
 $catalogRow = $catalogResult->fetch_assoc();
-$buildingCatalogId = (int)$catalogRow['id'];
+$buildingCatalogId = (int) $catalogRow['id'];
 
-$checkStmt = $conn->prepare(" 
+/*
+|--------------------------------------------------------------------------
+| Check duplicate building page
+|--------------------------------------------------------------------------
+*/
+
+$checkStmt = $conn->prepare("
     SELECT id
     FROM building_pages
     WHERE campus_table = ?
@@ -201,14 +266,26 @@ if (!$checkStmt) {
 }
 
 $checkStmt->bind_param('sss', $campusTable, $buildingName, $verificationId);
-$checkStmt->execute();
+
+if (!$checkStmt->execute()) {
+    dynamic_page_response(false, 'Database execute failed while checking existing building page.', [
+        'error' => $checkStmt->error,
+    ], 500);
+}
+
 $checkResult = $checkStmt->get_result();
+
+/*
+|--------------------------------------------------------------------------
+| Reactivate/update existing building page
+|--------------------------------------------------------------------------
+*/
 
 if ($checkResult->num_rows > 0) {
     $existing = $checkResult->fetch_assoc();
-    $existingId = (int)$existing['id'];
+    $existingId = (int) $existing['id'];
 
-    $updateStmt = $conn->prepare(" 
+    $updateStmt = $conn->prepare("
         UPDATE building_pages
         SET building_catalog_id = ?,
             building_name = ?,
@@ -225,7 +302,14 @@ if ($checkResult->num_rows > 0) {
         ], 500);
     }
 
-    $updateStmt->bind_param('isssi', $buildingCatalogId, $buildingName, $verificationId, $pageLink, $existingId);
+    $updateStmt->bind_param(
+        'isssi',
+        $buildingCatalogId,
+        $buildingName,
+        $verificationId,
+        $pageLink,
+        $existingId
+    );
 
     if (!$updateStmt->execute()) {
         dynamic_page_response(false, 'Failed to update building page.', [
@@ -240,7 +324,13 @@ if ($checkResult->num_rows > 0) {
     ]);
 }
 
-$insertStmt = $conn->prepare(" 
+/*
+|--------------------------------------------------------------------------
+| Insert new building page
+|--------------------------------------------------------------------------
+*/
+
+$insertStmt = $conn->prepare("
     INSERT INTO building_pages
       (campus_table, building_catalog_id, building_name, verification_table, page_link, is_active)
     VALUES (?, ?, ?, ?, ?, 1)
@@ -252,7 +342,14 @@ if (!$insertStmt) {
     ], 500);
 }
 
-$insertStmt->bind_param('sisss', $campusTable, $buildingCatalogId, $buildingName, $verificationId, $pageLink);
+$insertStmt->bind_param(
+    'sisss',
+    $campusTable,
+    $buildingCatalogId,
+    $buildingName,
+    $verificationId,
+    $pageLink
+);
 
 if (!$insertStmt->execute()) {
     dynamic_page_response(false, 'Failed to create building page.', [
@@ -263,5 +360,5 @@ if (!$insertStmt->execute()) {
 create_building_homepage_if_missing($pageLink, $verificationId, $buildingName);
 
 dynamic_page_response(true, 'Building page connected successfully.', [
-    'id' => (int)$conn->insert_id,
+    'id' => (int) $conn->insert_id,
 ], 201);

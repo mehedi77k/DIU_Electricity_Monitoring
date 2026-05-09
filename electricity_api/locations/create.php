@@ -1,10 +1,34 @@
 <?php
+
 require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../config/admin_password.php';
 
 require_method('POST');
 require_admin();
 
 $input = get_json_input();
+
+/*
+|--------------------------------------------------------------------------
+| Verify current admin password
+|--------------------------------------------------------------------------
+*/
+
+$adminPassword = clean_admin_password($input['admin_password'] ?? '');
+
+if ($adminPassword === '') {
+    json_response(false, 'Enter Your Password is required.', [], 422);
+}
+
+if (!admin_password_matches($conn, $adminPassword)) {
+    json_response(false, 'Admin password is incorrect.', [], 403);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Collect and validate input
+|--------------------------------------------------------------------------
+*/
 
 $locationName = clean_text($input['location_name'] ?? '');
 $verificationTable = strtolower(clean_text($input['verification_table'] ?? ($input['verification_id'] ?? '')));
@@ -62,7 +86,7 @@ if ($tableResult->num_rows !== 1) {
 
 /*
 |--------------------------------------------------------------------------
-| Check duplicate
+| Check duplicate location
 |--------------------------------------------------------------------------
 */
 
@@ -89,9 +113,15 @@ if (!$checkLocation->execute()) {
 
 $existing = $checkLocation->get_result();
 
+/*
+|--------------------------------------------------------------------------
+| Reactivate/update existing location
+|--------------------------------------------------------------------------
+*/
+
 if ($existing->num_rows > 0) {
     $existingRow = $existing->fetch_assoc();
-    $existingId = (int)$existingRow['id'];
+    $existingId = (int) $existingRow['id'];
 
     $update = $conn->prepare("
         UPDATE location_pages
@@ -148,5 +178,5 @@ if (!$insert->execute()) {
 }
 
 json_response(true, 'Location homepage created successfully.', [
-    'location_id' => (int)$conn->insert_id
+    'location_id' => (int) $conn->insert_id
 ], 201);

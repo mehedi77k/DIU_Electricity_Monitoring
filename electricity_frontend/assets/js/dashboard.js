@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const locationForm = document.getElementById("locationForm");
     const saveLocationBtn = document.getElementById("saveLocationBtn");
+    const adminPasswordInput = document.getElementById("adminPassword");
 
     const locationGrid = document.getElementById("locationGrid");
     const dashboardAlert = document.getElementById("dashboardAlert");
@@ -121,6 +122,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         modal.classList.add("show");
         modal.setAttribute("aria-hidden", "false");
+
+        setTimeout(() => {
+            const locationNameInput = document.getElementById("locationName");
+            if (locationNameInput) {
+                locationNameInput.focus();
+            }
+        }, 50);
     }
 
     function closeModal() {
@@ -129,6 +137,10 @@ document.addEventListener("DOMContentLoaded", () => {
         modal.classList.remove("show");
         modal.setAttribute("aria-hidden", "true");
         hideAlert(formAlert);
+
+        if (adminPasswordInput) {
+            adminPasswordInput.value = "";
+        }
     }
 
     async function logout() {
@@ -221,9 +233,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const locationName = document.getElementById("locationName").value.trim();
         const verificationTable = document.getElementById("verificationTable").value.trim().toLowerCase();
         const pageLink = document.getElementById("pageLink").value.trim();
+        const adminPassword = adminPasswordInput ? adminPasswordInput.value.trim() : "";
 
-        if (!locationName || !verificationTable || !pageLink) {
-            showAlert(formAlert, "All fields are required.");
+        if (!locationName || !verificationTable || !pageLink || !adminPassword) {
+            showAlert(formAlert, "All fields are required. Please enter your password.");
             return;
         }
 
@@ -241,7 +254,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({
                     location_name: locationName,
                     verification_table: verificationTable,
-                    page_link: pageLink
+                    page_link: pageLink,
+                    admin_password: adminPassword
                 })
             });
 

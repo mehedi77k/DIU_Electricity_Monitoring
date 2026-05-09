@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../config/admin_password.php';
 
 function room_create_response(bool $status, string $message, array $data = [], int $httpCode = 200): void
 {
@@ -18,12 +19,12 @@ function room_create_response(bool $status, string $message, array $data = [], i
 
 function room_create_clean($value): string
 {
-    return trim((string)$value);
+    return trim((string) $value);
 }
 
 function room_create_valid_slug(string $value, int $max = 180): bool
 {
-    return (bool)preg_match('/^[a-z0-9_]{2,' . $max . '}$/', $value);
+    return (bool) preg_match('/^[a-z0-9_]{2,' . $max . '}$/', $value);
 }
 
 function room_create_safe_html(string $value): string
@@ -64,6 +65,44 @@ function room_create_build_link(
         . '/rooms/'
         . $roomVerificationId
         . '/';
+}
+
+function room_create_validate_page_link(
+    string $pageLink,
+    string $buildingVerificationId,
+    string $floorVerificationId,
+    string $roomVerificationId
+): void {
+    if ($pageLink === '') {
+        room_create_response(false, 'Homepage link is required.', [], 422);
+    }
+
+    if (stripos($pageLink, 'javascript:') === 0 || stripos($pageLink, 'data:') === 0) {
+        room_create_response(false, 'Invalid homepage link.', [], 422);
+    }
+
+    $pagePath = parse_url($pageLink, PHP_URL_PATH);
+
+    if (!$pagePath) {
+        room_create_response(false, 'Invalid homepage link path.', [], 422);
+    }
+
+    $expectedPathPart = '/daffodil_smart_city/buildings/'
+        . $buildingVerificationId
+        . '/floors/'
+        . $floorVerificationId
+        . '/rooms/'
+        . $roomVerificationId
+        . '/';
+
+    if (strpos($pagePath, $expectedPathPart) === false) {
+        room_create_response(
+            false,
+            'Homepage link does not match this building, level and room verification ID. Expected path should contain: ' . $expectedPathPart,
+            [],
+            422
+        );
+    }
 }
 
 function room_create_ensure_directory(string $pageLink): ?string
@@ -146,6 +185,12 @@ HTML;
     file_put_contents($indexFile, $html);
 }
 
+/*
+|--------------------------------------------------------------------------
+| Request method and admin session check
+|--------------------------------------------------------------------------
+*/
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     room_create_response(false, 'Only POST request is allowed.', [], 405);
 }
@@ -154,16 +199,45 @@ if (empty($_SESSION['admin_id'])) {
     room_create_response(false, 'Unauthorized. Please login first.', [], 401);
 }
 
+/*
+|--------------------------------------------------------------------------
+| Decode JSON input
+|--------------------------------------------------------------------------
+*/
+
 $input = json_decode(file_get_contents('php://input'), true);
 
 if (!is_array($input)) {
     room_create_response(false, 'Invalid JSON request.', [], 400);
 }
 
+/*
+|--------------------------------------------------------------------------
+| Verify current admin password
+|--------------------------------------------------------------------------
+*/
+
+$adminPassword = clean_admin_password($input['admin_password'] ?? '');
+
+if ($adminPassword === '') {
+    room_create_response(false, 'Enter Your Password is required.', [], 422);
+}
+
+if (!admin_password_matches($conn, $adminPassword)) {
+    room_create_response(false, 'Admin password is incorrect.', [], 403);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Collect and validate input
+|--------------------------------------------------------------------------
+*/
+
 $buildingVerificationId = strtolower(room_create_clean($input['building_verification_id'] ?? ''));
 $floorVerificationId = strtolower(room_create_clean($input['floor_verification_id'] ?? ''));
 $roomName = room_create_clean($input['room_name'] ?? '');
 $roomVerificationId = strtolower(room_create_clean($input['room_verification_id'] ?? ''));
+$pageLink = room_create_clean($input['page_link'] ?? '');
 
 if ($buildingVerificationId === '' || !room_create_valid_slug($buildingVerificationId, 150)) {
     room_create_response(false, 'Invalid building verification ID.', [], 422);
@@ -177,15 +251,34 @@ if ($roomName === '') {
     room_create_response(false, 'Room name is required.', [], 422);
 }
 
+if (strlen($roomName) < 1 || strlen($roomName) > 150) {
+    room_create_response(false, 'Room name must be between 1 and 150 characters.', [], 422);
+}
+
 if ($roomVerificationId === '' || !room_create_valid_slug($roomVerificationId, 180)) {
     room_create_response(false, 'Invalid room verification ID.', [], 422);
 }
 
-$pageLink = room_create_build_link(
+if ($pageLink === '') {
+    $pageLink = room_create_build_link(
+        $buildingVerificationId,
+        $floorVerificationId,
+        $roomVerificationId
+    );
+}
+
+room_create_validate_page_link(
+    $pageLink,
     $buildingVerificationId,
     $floorVerificationId,
     $roomVerificationId
 );
+
+/*
+|--------------------------------------------------------------------------
+| Check active level exists
+|--------------------------------------------------------------------------
+*/
 
 $floorStmt = $conn->prepare("
     SELECT
@@ -207,7 +300,12 @@ if (!$floorStmt) {
 }
 
 $floorStmt->bind_param('ss', $buildingVerificationId, $floorVerificationId);
-$floorStmt->execute();
+
+if (!$floorStmt->execute()) {
+    room_create_response(false, 'Database execute failed while checking floor page.', [
+        'error' => $floorStmt->error
+    ], 500);
+}
 
 $floorResult = $floorStmt->get_result();
 
@@ -216,7 +314,13 @@ if ($floorResult->num_rows !== 1) {
 }
 
 $floorRow = $floorResult->fetch_assoc();
-$floorPageId = (int)$floorRow['id'];
+$floorPageId = (int) $floorRow['id'];
+
+/*
+|--------------------------------------------------------------------------
+| Check room exists in room_catalog
+|--------------------------------------------------------------------------
+*/
 
 $catalogStmt = $conn->prepare("
     SELECT
@@ -246,7 +350,11 @@ $catalogStmt->bind_param(
     $roomVerificationId
 );
 
-$catalogStmt->execute();
+if (!$catalogStmt->execute()) {
+    room_create_response(false, 'Database execute failed while checking room catalog.', [
+        'error' => $catalogStmt->error
+    ], 500);
+}
 
 $catalogResult = $catalogStmt->get_result();
 
@@ -255,6 +363,12 @@ if ($catalogResult->num_rows !== 1) {
 }
 
 $catalogRow = $catalogResult->fetch_assoc();
+
+/*
+|--------------------------------------------------------------------------
+| Check duplicate room page
+|--------------------------------------------------------------------------
+*/
 
 $checkStmt = $conn->prepare("
     SELECT
@@ -280,13 +394,23 @@ $checkStmt->bind_param(
     $roomVerificationId
 );
 
-$checkStmt->execute();
+if (!$checkStmt->execute()) {
+    room_create_response(false, 'Database execute failed while checking room page.', [
+        'error' => $checkStmt->error
+    ], 500);
+}
 
 $checkResult = $checkStmt->get_result();
 
+/*
+|--------------------------------------------------------------------------
+| Reactivate/update existing room page
+|--------------------------------------------------------------------------
+*/
+
 if ($checkResult->num_rows > 0) {
     $existing = $checkResult->fetch_assoc();
-    $existingId = (int)$existing['id'];
+    $existingId = (int) $existing['id'];
 
     $updateStmt = $conn->prepare("
         UPDATE room_pages
@@ -338,6 +462,12 @@ if ($checkResult->num_rows > 0) {
     ]);
 }
 
+/*
+|--------------------------------------------------------------------------
+| Insert new room page
+|--------------------------------------------------------------------------
+*/
+
 $insertStmt = $conn->prepare("
     INSERT INTO room_pages (
         floor_page_id,
@@ -373,7 +503,7 @@ if (!$insertStmt->execute()) {
     ], 500);
 }
 
-$newId = (int)$conn->insert_id;
+$newId = (int) $conn->insert_id;
 
 room_create_homepage_if_missing(
     $pageLink,

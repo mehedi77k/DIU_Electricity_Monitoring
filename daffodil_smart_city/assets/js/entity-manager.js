@@ -36,6 +36,7 @@
         building_name: form.name,
         verification_id: form.slug,
         page_link: form.link,
+        admin_password: form.adminPassword,
       }),
       normalizeCatalog: (item, ctx) => ({
         id: item.id,
@@ -84,6 +85,7 @@
         floor_name: form.name,
         floor_verification_id: form.slug,
         page_link: form.link,
+        admin_password: form.adminPassword,
       }),
       normalizeCatalog: (item) => ({
         id: item.id,
@@ -133,6 +135,7 @@
         room_name: form.name,
         room_verification_id: form.slug,
         page_link: form.link,
+        admin_password: form.adminPassword,
       }),
       normalizeCatalog: (item) => ({
         id: item.id,
@@ -364,6 +367,16 @@
                 <input id="entityLink" autocomplete="off" placeholder="Paste homepage link" />
                 <div class="black-suggestion-box hidden" id="linkSuggestions"></div>
               </div>
+
+              <div class="form-field">
+                <label for="entityAdminPassword">Enter Your Password</label>
+                <input
+                  id="entityAdminPassword"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="Enter Your Password"
+                />
+              </div>
             </div>
 
             <div class="modal-actions">
@@ -557,11 +570,13 @@
     const nameInput = root.querySelector("#entityName");
     const slugInput = root.querySelector("#entitySlug");
     const linkInput = root.querySelector("#entityLink");
+    const passwordInput = root.querySelector("#entityAdminPassword");
 
     const form = {
       name: nameInput.value.trim(),
       slug: slugInput.value.trim(),
       link: linkInput.value.trim(),
+      adminPassword: passwordInput ? passwordInput.value.trim() : "",
     };
 
     hideAllSuggestions(root);
@@ -574,10 +589,16 @@
       return inputError(root, state, "Verification ID can contain only lowercase letters, numbers, and underscore.", slugInput);
     }
 
-    if (!form.link) return inputError(root, state, "Homepage link is required.", linkInput);
+    if (!form.link) {
+      return inputError(root, state, "Homepage link is required.", linkInput);
+    }
 
     if (form.link.toLowerCase().startsWith("javascript:") || form.link.toLowerCase().startsWith("data:")) {
       return inputError(root, state, "Invalid homepage link.", linkInput);
+    }
+
+    if (!form.adminPassword) {
+      return inputError(root, state, "Enter Your Password is required.", passwordInput);
     }
 
     try {
@@ -699,7 +720,10 @@
 
   function inputError(root, state, message, input) {
     showAlert(root, state, message, "danger");
-    input.focus();
+
+    if (input) {
+      input.focus();
+    }
   }
 
   function showAlert(root, state, message, type = "danger") {
