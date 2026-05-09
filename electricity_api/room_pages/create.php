@@ -98,8 +98,7 @@ function room_create_homepage_if_missing(
     string $pageLink,
     string $buildingVerificationId,
     string $floorVerificationId,
-    string $roomName,
-    string $roomVerificationId
+    string $roomName
 ): void {
     $fullPath = room_create_ensure_directory($pageLink);
 
@@ -114,72 +113,32 @@ function room_create_homepage_if_missing(
     }
 
     $safeRoomName = room_create_safe_html($roomName);
+    $safeBuildingId = room_create_safe_html($buildingVerificationId);
+    $safeFloorId = room_create_safe_html($floorVerificationId);
+
+    $pagePath = parse_url($pageLink, PHP_URL_PATH);
+    $parts = explode('/', trim($pagePath, '/'));
+    $roomVerificationId = end($parts);
     $safeRoomId = room_create_safe_html($roomVerificationId);
-    $safeBuilding = room_create_safe_html(ucwords(str_replace('_', ' ', $buildingVerificationId)));
-    $safeFloor = room_create_safe_html(ucwords(str_replace('_', ' ', $floorVerificationId)));
 
     $html = <<<HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>{$safeRoomName} | Daffodil Smart City</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f7fb;
-            color: #111827;
-        }
-
-        main {
-            max-width: 900px;
-            margin: 60px auto;
-            background: #ffffff;
-            padding: 36px;
-            border-radius: 22px;
-            box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
-        }
-
-        .eyebrow {
-            color: #2563eb;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 13px;
-        }
-
-        h1 {
-            margin: 10px 0;
-            font-size: 36px;
-        }
-
-        p {
-            color: #4b5563;
-            line-height: 1.6;
-        }
-
-        a {
-            display: inline-block;
-            margin-top: 18px;
-            background: #2563eb;
-            color: white;
-            padding: 12px 18px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{$safeRoomName} | Daffodil Smart City</title>
+  <link rel="stylesheet" href="../../../../../../assets/css/entity-manager.css" />
 </head>
 <body>
-    <main>
-        <p class="eyebrow">Room Home</p>
-        <h1>{$safeRoomName}</h1>
-        <p>{$safeBuilding} - {$safeFloor}</p>
-        <p>Room Verification ID: {$safeRoomId}</p>
-        <a href="../../index.html">Back to Level</a>
-    </main>
+  <div
+    id="diuRoomHome"
+    data-building-id="{$safeBuildingId}"
+    data-floor-id="{$safeFloorId}"
+    data-room-id="{$safeRoomId}"
+  ></div>
+
+  <script src="../../../../../../assets/js/room-home.js"></script>
 </body>
 </html>
 HTML;
@@ -370,8 +329,7 @@ if ($checkResult->num_rows > 0) {
         $pageLink,
         $buildingVerificationId,
         $floorVerificationId,
-        $catalogRow['room_name'],
-        $catalogRow['room_verification_id']
+        $catalogRow['room_name']
     );
 
     room_create_response(true, 'Room page activated successfully.', [
@@ -421,8 +379,7 @@ room_create_homepage_if_missing(
     $pageLink,
     $buildingVerificationId,
     $floorVerificationId,
-    $catalogRow['room_name'],
-    $catalogRow['room_verification_id']
+    $catalogRow['room_name']
 );
 
 room_create_response(true, 'Room page connected successfully.', [

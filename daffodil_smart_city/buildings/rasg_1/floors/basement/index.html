@@ -1,107 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Level Rooms | Daffodil Smart City</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../../assets/css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Level | Daffodil Smart City</title>
+  <link rel="stylesheet" href="../../../../assets/css/entity-manager.css" />
 </head>
+<body>
+  <div
+    id="diuEntityApp"
+    data-entity="room"
+    data-campus-table="daffodil_smart_city"
+  ></div>
 
-<body class="building-page">
-<main class="main-content">
-    <div class="content-shell">
-        <header class="topbar">
-            <div class="topbar-title">
-                <p class="eyebrow">Level Home</p>
-                <h1 id="levelTitle">Loading Level...</h1>
-                <p class="muted">Add and manage rooms under this level.</p>
-            </div>
-
-            <div class="topbar-actions">
-                <button class="add-device-btn" id="addRoomBtn" type="button">
-                    <span>+</span>
-                    Add Rooms
-                </button>
-            </div>
-        </header>
-
-        <div id="pageAlert" class="alert hidden"></div>
-
-        <section class="devices-panel">
-            <div class="section-head">
-                <div>
-                    <p class="eyebrow">Room Cards</p>
-                    <h2>Added Rooms</h2>
-                </div>
-            </div>
-
-            <div class="device-grid" id="roomGrid">
-                <div class="empty-state">
-                    <div class="empty-icon">⚡</div>
-                    <h3>Loading rooms...</h3>
-                    <p>Please wait while we fetch room data.</p>
-                </div>
-            </div>
-        </section>
-    </div>
-</main>
-
-<div class="modal-overlay hidden" id="roomModal">
-    <div class="modal-card">
-        <div class="modal-head">
-            <div>
-                <p class="eyebrow">Connect Room</p>
-                <h2>Add Room Homepage</h2>
-            </div>
-
-            <button class="modal-close-btn" id="modalCloseBtn" type="button" aria-label="Close modal">
-                ×
-            </button>
-        </div>
-
-        <form
-            id="roomForm"
-            class="building-form"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"
-            spellcheck="false"
-        >
-            <div class="form-group">
-                <label for="approvedRoomSelect">Approved Room</label>
-                <select id="approvedRoomSelect" required>
-                    <option value="">Select approved room</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="roomNo">Room Name</label>
-                <input type="text" id="roomNo" readonly required>
-            </div>
-
-            <div class="form-group">
-                <label for="roomVerificationId">Verification ID</label>
-                <input type="text" id="roomVerificationId" readonly required>
-            </div>
-
-            <div class="form-group">
-                <label for="roomPageLink">Homepage Link</label>
-                <input type="url" id="roomPageLink" readonly required>
-            </div>
-
-            <div class="modal-actions">
-                <button class="btn-secondary" id="modalCancelBtn" type="button">
-                    Cancel
-                </button>
-
-                <button class="add-device-btn" id="saveRoomBtn" type="submit">
-                    Save Room
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script src="../../../../assets/js/floor-page.js?v=room-ui-20260509"></script>
+  <script src="../../../../assets/js/entity-manager.js"></script>
 </body>
 </html>

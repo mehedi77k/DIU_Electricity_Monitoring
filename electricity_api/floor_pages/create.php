@@ -56,84 +56,46 @@ function dynamic_ensure_directory_from_link(string $pageLink): ?string
 
 function create_floor_homepage_if_missing(string $pageLink, string $buildingVerificationId, string $floorVerificationId, string $floorName): void
 {
-    $fullPath = dynamic_ensure_directory_from_link($pageLink);
-    if (!$fullPath) {
-        return;
-    }
+        $fullPath = dynamic_ensure_directory_from_link($pageLink);
 
-    $indexFile = $fullPath . 'index.html';
-    if (file_exists($indexFile)) {
-        return;
-    }
+        if (!$fullPath) {
+                return;
+        }
 
-    $safeFloorName = dynamic_safe_html($floorName);
-    $safeBuildingSlug = dynamic_safe_html($buildingVerificationId);
+        $indexFile = $fullPath . 'index.html';
 
-    $html = <<<HTML
+        if (file_exists($indexFile)) {
+                return;
+        }
+
+        $safeTitle = dynamic_safe_html($floorName);
+        $safeBuildingId = dynamic_safe_html($buildingVerificationId);
+        $safeFloorId = dynamic_safe_html($floorVerificationId);
+
+        $html = <<<HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{$safeFloorName} | Daffodil Smart City</title>
-  <link rel="stylesheet" href="../../../../assets/css/style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{$safeTitle} | Daffodil Smart City</title>
+    <link rel="stylesheet" href="../../../../assets/css/entity-manager.css" />
 </head>
 <body>
-  <button class="burger-btn" id="burgerBtn" aria-label="Toggle menu" aria-expanded="false">☰</button>
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
-  <aside class="sidebar" id="sidebar">
-    <div class="brand"><span class="brand-icon">⚡</span><div><h2>Level</h2><p>Room Manager</p></div></div>
-    <nav class="nav-links">
-      <a href="../../../../index.html">Daffodil Smart City</a>
-      <a href="../../../../../electricity_frontend/dashboard.html">Admin Dashboard</a>
-      <a href="../../index.html">Building Home</a>
-      <a href="index.html">Level Home</a>
-    </nav>
-  </aside>
+    <div
+        id="diuEntityApp"
+        data-entity="room"
+        data-campus-table="daffodil_smart_city"
+        data-building-id="{$safeBuildingId}"
+        data-floor-id="{$safeFloorId}"
+    ></div>
 
-  <main class="main-content">
-    <section class="page-header">
-      <p class="eyebrow">Level Home</p>
-      <h1 id="pageTitle">{$safeFloorName}</h1>
-      <p id="pageSubtitle">Add and manage rooms under {$safeBuildingSlug} / {$safeFloorName}.</p>
-      <button class="primary-btn" id="addRoomBtn">+ Add Rooms</button>
-    </section>
-
-    <div id="pageAlert" class="alert hidden"></div>
-
-    <section class="devices-section">
-      <div class="section-heading"><div><p class="eyebrow">Room Cards</p><h2>Added Rooms</h2></div></div>
-      <div class="device-grid" id="roomGrid"></div>
-    </section>
-  </main>
-
-  <div class="modal hidden" id="roomModal" role="dialog" aria-modal="true">
-    <div class="modal-card">
-      <div class="modal-header"><h2>Add Room Homepage</h2><button type="button" class="icon-btn" id="modalCloseBtn">×</button></div>
-      <form id="roomForm" class="modal-form">
-        <label class="suggest-wrap">Room Name / No
-          <input type="text" id="roomNo" autocomplete="off" required>
-          <div id="roomNoSuggestions" class="black-suggestions hidden"></div>
-        </label>
-        <label class="suggest-wrap">Verification ID
-          <input type="text" id="roomVerificationId" autocomplete="off" required>
-          <div id="roomVerificationSuggestions" class="black-suggestions hidden"></div>
-        </label>
-        <label class="suggest-wrap">Homepage Link
-          <input type="url" id="roomPageLink" autocomplete="off" required>
-          <div id="roomPageLinkSuggestions" class="black-suggestions hidden"></div>
-        </label>
-        <div class="modal-actions"><button type="button" class="secondary-btn" id="modalCancelBtn">Cancel</button><button type="submit" class="primary-btn" id="saveRoomBtn">Save Room</button></div>
-      </form>
-    </div>
-  </div>
-
-  <script src="../../../../assets/js/floor-page.js"></script>
+    <script src="../../../../assets/js/entity-manager.js"></script>
 </body>
 </html>
 HTML;
 
-    file_put_contents($indexFile, $html);
+        file_put_contents($indexFile, $html);
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

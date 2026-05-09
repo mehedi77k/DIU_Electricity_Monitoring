@@ -81,82 +81,44 @@ function dynamic_ensure_directory_from_link(string $pageLink): ?string
 
 function create_building_homepage_if_missing(string $pageLink, string $buildingVerificationId, string $buildingName): void
 {
-    $fullPath = dynamic_ensure_directory_from_link($pageLink);
-    if (!$fullPath) {
-        return;
-    }
+        $fullPath = dynamic_ensure_directory_from_link($pageLink);
 
-    $indexFile = $fullPath . 'index.html';
-    if (file_exists($indexFile)) {
-        return;
-    }
+        if (!$fullPath) {
+                return;
+        }
 
-    $safeBuildingName = dynamic_safe_html($buildingName);
+        $indexFile = $fullPath . 'index.html';
 
-    $html = <<<HTML
+        if (file_exists($indexFile)) {
+                return;
+        }
+
+        $safeTitle = dynamic_safe_html($buildingName);
+        $safeBuildingId = dynamic_safe_html($buildingVerificationId);
+
+        $html = <<<HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{$safeBuildingName} | Daffodil Smart City</title>
-  <link rel="stylesheet" href="../../assets/css/style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{$safeTitle} | Daffodil Smart City</title>
+    <link rel="stylesheet" href="../../assets/css/entity-manager.css" />
 </head>
 <body>
-  <button class="burger-btn" id="burgerBtn" aria-label="Toggle menu" aria-expanded="false">☰</button>
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
-  <aside class="sidebar" id="sidebar">
-    <div class="brand"><span class="brand-icon">⚡</span><div><h2>Daffodil Smart City</h2><p>Level Manager</p></div></div>
-    <nav class="nav-links">
-      <a href="../../index.html">Daffodil Smart City</a>
-      <a href="../../../electricity_frontend/dashboard.html">Admin Dashboard</a>
-      <a href="index.html">Building Home</a>
-    </nav>
-  </aside>
+    <div
+        id="diuEntityApp"
+        data-entity="level"
+        data-campus-table="daffodil_smart_city"
+        data-building-id="{$safeBuildingId}"
+    ></div>
 
-  <main class="main-content">
-    <section class="page-header">
-      <p class="eyebrow">Building Home</p>
-      <h1 id="buildingTitle">{$safeBuildingName}</h1>
-      <p>Add and manage levels under this building.</p>
-      <button class="primary-btn" id="addLevelBtn">+ Add Levels</button>
-    </section>
-
-    <div id="pageAlert" class="alert hidden"></div>
-
-    <section class="devices-section">
-      <div class="section-heading"><div><p class="eyebrow">Level Cards</p><h2>Added Levels</h2></div></div>
-      <div class="device-grid" id="levelGrid"></div>
-    </section>
-  </main>
-
-  <div class="modal hidden" id="levelModal" role="dialog" aria-modal="true">
-    <div class="modal-card">
-      <div class="modal-header"><h2>Add Level Homepage</h2><button type="button" class="icon-btn" id="modalCloseBtn">×</button></div>
-      <form id="levelForm" class="modal-form">
-        <label class="suggest-wrap">Level Name
-          <input type="text" id="levelName" autocomplete="off" required>
-          <div id="levelNameSuggestions" class="black-suggestions hidden"></div>
-        </label>
-        <label class="suggest-wrap">Verification ID
-          <input type="text" id="levelVerificationId" autocomplete="off" required>
-          <div id="levelVerificationSuggestions" class="black-suggestions hidden"></div>
-        </label>
-        <label class="suggest-wrap">Homepage Link
-          <input type="url" id="levelPageLink" autocomplete="off" required>
-          <div id="levelPageLinkSuggestions" class="black-suggestions hidden"></div>
-        </label>
-        <div class="modal-actions"><button type="button" class="secondary-btn" id="modalCancelBtn">Cancel</button><button type="submit" class="primary-btn" id="saveLevelBtn">Save Level</button></div>
-      </form>
-    </div>
-  </div>
-
-  <script src="../../assets/js/building-page.js"></script>
+    <script src="../../assets/js/entity-manager.js"></script>
 </body>
 </html>
 HTML;
 
-    file_put_contents($indexFile, $html);
+        file_put_contents($indexFile, $html);
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
