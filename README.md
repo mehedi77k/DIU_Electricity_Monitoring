@@ -1,4 +1,4 @@
-# DIU Electricity Monitoring
+# Agentic AI and IoT-Based Energy Meter Development and Utility Monitoring System
 
 A PHP, MySQL, HTML, CSS, and JavaScript based electricity monitoring system for managing campus electricity devices, viewing device status, tracking demo power readings, and maintaining dynamic campus/building/floor/room pages.
 
